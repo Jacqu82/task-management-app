@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+    php-fpm:
+        container_name: ${COMPOSE_PROJECT_NAME}-php-fpm
+        build:
+            context: .
+            dockerfile: php-fpm/Dockerfile
+            args:
+                - PHP_VERSION=${PHP_VERSION}
+        volumes:
+            - ../backend:/web/backend
+
+    nginx:
+        container_name: ${COMPOSE_PROJECT_NAME}-nginx
+        build:
+            context: .
+            dockerfile: nginx/Dockerfile
+            args:
+                - APP_HOST=${APP_HOST}
+        ports:
+            - "8000:80"
+        depends_on:
+            - php-fpm
+            - node
+        volumes:
+            - ../backend:/web/backend
+
+    composer:
+        container_name: ${COMPOSE_PROJECT_NAME}-composer
+        command: install
+        build:
+            context: .
+            dockerfile: composer/Dockerfile
+        volumes:
+            - ../backend:/web/backend
+        depends_on:
+            - php-fpm
+
+    mysql:
+        container_name: ${COMPOSE_PROJECT_NAME}-mysql
+        build:
+            context: .
+            dockerfile: mysql/Dockerfile
+            args:
+                - MYSQL_VERSION=${MYSQL_VERSION}
+        environment:
+            - MYSQL_DATABASE=${MYSQL_DATABASE}
+            - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+            - MYSQL_USER=${MYSQL_USER}
+            - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+        volumes:
+            - ./data/mysql:/var/lib/mysql
+        ports:
+            - "3307:3306"
+
+    node:
+        container_name: ${COMPOSE_PROJECT_NAME}-node
+        build:
+            context: .
+            dockerfile: node/Dockerfile
+            args:
+                - NODE_VERSION=${NODE_VERSION}
+        ports:
+            - "3000:3000"
+        volumes:
+            - ../frontend:/web/frontend

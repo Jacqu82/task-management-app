@@ -1,0 +1,8 @@
+ARG MYSQL_VERSION
+FROM mysql:${MYSQL_VERSION}
+
+WORKDIR /web/backend
+
+EXPOSE 3306
+
+CMD ["mysqld"]

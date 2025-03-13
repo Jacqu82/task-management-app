@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from "react";
+import {useState} from "react";
 import styles from "./login.module.css";
 
 export default function Login() {
@@ -17,6 +17,19 @@ export default function Login() {
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
+    const getCsrfToken = async (context: string) => {
+        const response = await fetch(`${API_BASE_URL}/api/csrf-token/${context}`, {
+            method: "POST",
+        });
+        const csrfToken = response.headers.get("CSRF-TOKEN");
+
+        if (!csrfToken) {
+            throw new Error("CSRF token not found");
+        }
+
+        return csrfToken;
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -24,15 +37,15 @@ export default function Login() {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
+                "CSRF-TOKEN": await getCsrfToken("login"),
             },
             body: JSON.stringify(formData),
         });
 
-        const responseData = await response.json();
-
         if (response.ok) {
             window.location.href = '/';
         } else {
+            const responseData = await response.json();
             setErrorMessage(responseData.error);
         }
     };

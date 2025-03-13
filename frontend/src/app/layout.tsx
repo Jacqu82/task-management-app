@@ -1,21 +1,30 @@
 'use client';
 
-import { useEffect, useState } from "react";
-import Cookies from "js-cookie";
+import {useEffect, useState} from "react";
 import Link from "next/link";
 import './globals.css';
+import {checkAuth, logout} from "@/services/authService";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    interface User {
+        email: string;
+    }
+    const [user, setUser] = useState<User | null>(null);
+
+
+
     useEffect(() => {
-        const token = Cookies.get("jwt_token");
-        setIsLoggedIn(!!token);
+        async function loadUser() {
+            const authenticatedUser = await checkAuth();
+            setUser(authenticatedUser);
+        }
+
+        loadUser();
     }, []);
 
-    const handleLogout = () => {
-        Cookies.remove("jwt_token");
-        setIsLoggedIn(false);
-        window.location.href = "/";
+    const handleLogout = async () => {
+        await logout();
+        setUser(null);
     };
 
     return (
@@ -31,7 +40,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 <Link href="/" style={{ margin: '0 15px', fontSize: '1.2rem', color: '#fff' }}>
                     Strona Główna
                 </Link>
-                {!isLoggedIn && (
+                {!user ? (
                     <>
                         <Link href="/register" style={{ margin: '0 15px', fontSize: '1.2rem', color: '#fff' }}>
                             Rejestracja
@@ -40,19 +49,18 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                             Logowanie
                         </Link>
                     </>
-                )}
-                {isLoggedIn && (
-                    <a
-                        onClick={handleLogout}
-                        style={{
-                            margin: '0 15px',
-                            fontSize: '1.2rem',
-                            color: '#fff',
-                            cursor: 'pointer',
-                        }}
-                    >
-                        Wyloguj
-                    </a>
+                ) : (
+                    <>
+                        <span style={{ margin: '0 15px', fontSize: '1.2rem', color: '#fff' }}>
+                            Witaj, {user.email}
+                        </span>
+                        <a
+                            onClick={() => handleLogout()}
+                            style={{ margin: '0 15px', fontSize: '1.2rem', color: '#fff', cursor: 'pointer' }}
+                        >
+                            Wyloguj
+                        </a>
+                    </>
                 )}
             </nav>
         </header>

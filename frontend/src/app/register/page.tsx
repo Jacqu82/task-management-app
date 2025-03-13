@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from "react";
+import {useState} from "react";
 import styles from "./register.module.css";
 
 export default function Register() {
@@ -19,10 +19,17 @@ export default function Register() {
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-    const getCsrfToken = async () => {
-        const response = await fetch(`${API_BASE_URL}/api/csrf-token`);
-        const data = await response.json();
-        return data.csrf_token;
+    const getCsrfToken = async (context: string) => {
+        const response = await fetch(`${API_BASE_URL}/api/csrf-token/${context}`, {
+            method: "POST",
+        });
+        const csrfToken = response.headers.get("CSRF-TOKEN");
+
+        if (!csrfToken) {
+            throw new Error("CSRF token not found");
+        }
+
+        return csrfToken;
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -33,7 +40,7 @@ export default function Register() {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "X-CSRF-TOKEN": await getCsrfToken(),
+                "CSRF-TOKEN": await getCsrfToken("register"),
             },
             body: JSON.stringify(formData),
         });

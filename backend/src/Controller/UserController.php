@@ -30,7 +30,7 @@ class UserController extends AbstractController
     #[Route('/api/users', name: 'api_user_create', methods: ['POST'])]
     public function create(Request $request): JsonResponse
     {
-        $csrfToken = $request->headers->get('X-CSRF-TOKEN');
+        $csrfToken = $request->headers->get('CSRF-TOKEN');
 
         if (!$this->csrfTokenManager->isTokenValid(new CsrfToken('register', $csrfToken))) {
             return new JsonResponse(['error' => 'Invalid CSRF token'], 403);

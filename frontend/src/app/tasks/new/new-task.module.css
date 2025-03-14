@@ -4,9 +4,8 @@
     align-items: center;
     justify-content: center;
     height: 100vh;
-    text-align: center;
     padding: 20px;
-    box-sizing: border-box;
+    text-align: center;
 }
 
 .title {
@@ -21,11 +20,6 @@
     background-color: #f4f4f4;
     border-radius: 10px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    box-sizing: border-box;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
 }
 
 .formGroup {
@@ -33,7 +27,7 @@
     padding: 0 10px;
 }
 
-.input {
+.input, .textarea, .select {
     width: 100%;
     padding: 10px;
     border-radius: 5px;
@@ -42,10 +36,15 @@
     box-sizing: border-box;
 }
 
+.textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
 .submitBtn {
     width: 100%;
     padding: 12px;
-    background-color: #28a745;
+    background-color: #0070f3;
     color: white;
     border: none;
     border-radius: 5px;
@@ -55,32 +54,42 @@
 }
 
 .submitBtn:hover {
-    background-color: #218838;
+    background-color: #005bb5;
 }
 
-.errorMessage {
+.navLink {
+    text-decoration: none;
+    color: white;
+    background-color: #0070f3;
+    padding: 10px 20px;
+    border-radius: 5px;
+    transition: background 0.2s;
+    margin-bottom: 20px;
+}
+
+.error {
     color: red;
-    font-weight: bold;
-    margin-bottom: 15px;
+    font-size: 0.9rem;
+    margin-top: 5px;
 }
 
-@media (max-width: 600px) {
+/* Responsywność */
+@media (max-width: 480px) {
     .form {
-        width: 90%;
         padding: 15px;
     }
 
-    .input, .submitBtn {
-        font-size: 1rem;
-    }
-
     .title {
-        font-size: 1.5rem;
+        font-size: 1.8rem;
     }
-}
 
-@media (max-width: 400px) {
-    .form {
-        width: 100%;
+    .submitBtn {
+        font-size: 1rem;
+        padding: 10px;
+    }
+
+    .navLink {
+        padding: 8px 16px;
+        font-size: 1rem;
     }
 }

@@ -8,7 +8,6 @@ use App\Repository\UserRepository;
 use App\Service\CookieProvider;
 use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -62,21 +61,13 @@ class SecurityController extends AbstractController
     }
 
     #[Route('/api/me', name: 'api_me', methods: ['POST'])]
-    public function getAuthenticatedUser(Request $request): JsonResponse
+    public function getAuthenticatedUser(): JsonResponse
     {
-        $accessToken = $request->cookies->get('access_token');
-
-        if (!$accessToken) {
-            return $this->json(['error' => 'Brak tokena'], 401);
+        if (null === $this->getUser()) {
+            return new JsonResponse(['error' => 'User not found'], Response::HTTP_UNAUTHORIZED);
         }
 
-        try {
-            $decoded = $this->jwtEncoder->decode($accessToken);
-        } catch (\Exception $e) {
-            return $this->json(['error' => 'Nieprawidłowy token'], 401);
-        }
-
-        return new JsonResponse(['email' => $decoded['username']], Response::HTTP_OK);
+        return new JsonResponse(['email' => $this->getUser()->getEmail()], Response::HTTP_OK);
     }
 
     #[Route('/api/refresh-token', name: 'api_refresh_token', methods: ['POST'])]
@@ -105,12 +96,17 @@ class SecurityController extends AbstractController
     }
 
     #[Route('/api/logout', methods: ['POST'])]
-    public function logout(): JsonResponse
+    public function logout(Request $request): JsonResponse
     {
         $response = new JsonResponse(['message' => 'Wylogowano']);
 
-        $response->headers->setCookie(new Cookie('access_token', '', time() - 3600, '/', null, false, true, false, Cookie::SAMESITE_STRICT));
-        $response->headers->setCookie(new Cookie('refresh_token', '', time() - 3600, '/', null, false, true, false, Cookie::SAMESITE_STRICT));
+        if ($request->cookies->has('access_token')) {
+            $response->headers->clearCookie('access_token');
+        }
+
+        if ($request->cookies->has('refresh_token')) {
+            $response->headers->clearCookie('refresh_token');
+        }
 
         return $response;
     }

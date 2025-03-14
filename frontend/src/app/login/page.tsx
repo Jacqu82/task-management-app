@@ -1,6 +1,7 @@
 'use client';
 
 import {useState} from "react";
+import {useRouter} from "next/navigation";
 import styles from "./login.module.css";
 
 export default function Login() {
@@ -16,6 +17,7 @@ export default function Login() {
 
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+    const router = useRouter();
 
     const getCsrfToken = async (context: string) => {
         const response = await fetch(`${API_BASE_URL}/api/csrf-token/${context}`, {
@@ -43,7 +45,7 @@ export default function Login() {
         });
 
         if (response.ok) {
-            window.location.href = '/';
+            router.push("/");
         } else {
             const responseData = await response.json();
             setErrorMessage(responseData.error);

@@ -11,8 +11,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     }
     const [user, setUser] = useState<User | null>(null);
 
-
-
     useEffect(() => {
         async function loadUser() {
             const authenticatedUser = await checkAuth();
@@ -30,49 +28,24 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     return (
         <html lang="pl">
         <body>
-        <header style={{
-            padding: '20px',
-            backgroundColor: '#333',
-            textAlign: 'center',
-            color: '#fff',
-        }}>
-            <nav>
-                <Link href="/" style={{ margin: '0 15px', fontSize: '1.2rem', color: '#fff' }}>
-                    Strona Główna
-                </Link>
+        <header className="header">
+            <nav className="nav">
+                <Link href="/">Strona Główna</Link>
                 {!user ? (
                     <>
-                        <Link href="/register" style={{ margin: '0 15px', fontSize: '1.2rem', color: '#fff' }}>
-                            Rejestracja
-                        </Link>
-                        <Link href="/login" style={{ margin: '0 15px', fontSize: '1.2rem', color: '#fff' }}>
-                            Logowanie
-                        </Link>
+                        <Link href="/register">Rejestracja</Link>
+                        <Link href="/login">Logowanie</Link>
                     </>
                 ) : (
                     <>
-                        <span style={{ margin: '0 15px', fontSize: '1.2rem', color: '#fff' }}>
-                            Witaj, {user.email}
-                        </span>
-                        <a
-                            onClick={() => handleLogout()}
-                            style={{ margin: '0 15px', fontSize: '1.2rem', color: '#fff', cursor: 'pointer' }}
-                        >
-                            Wyloguj
-                        </a>
+                        <span>Witaj, {user.email}</span>
+                        <a onClick={() => handleLogout()}>Wyloguj</a>
                     </>
                 )}
             </nav>
         </header>
-
-        <main>{children}</main>
-
-        <footer style={{
-            padding: '20px',
-            backgroundColor: '#333',
-            textAlign: 'center',
-            color: '#fff',
-        }}>
+        <main className="main">{children}</main>
+        <footer className="footer">
             <p>&copy; 2025 Your Company</p>
         </footer>
         </body>

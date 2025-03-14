@@ -31,7 +31,6 @@ export async function checkAuth() {
     return null;
 }
 
-
 export async function refreshToken() {
     const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -59,6 +58,7 @@ export async function logout() {
             method: 'POST',
             credentials: 'include',
         });
+        window.location.href = '/';
     } catch (error) {
         console.error("Błąd podczas wylogowania", error);
     }

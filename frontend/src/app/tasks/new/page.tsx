@@ -11,7 +11,6 @@ export default function NewTask() {
         description: "",
     });
     const [validationErrors, setErrors] = useState<{ title?: string }>({});
-    const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
     const router = useRouter();
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -34,7 +33,7 @@ export default function NewTask() {
         setErrors({});
 
         try {
-            const response = await fetch(`${API_BASE_URL}/api/tasks`, {
+            const response = await fetch(`/api/tasks`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

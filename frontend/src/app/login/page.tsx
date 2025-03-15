@@ -15,10 +15,8 @@ export default function Login() {
     };
 
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
-    const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-
     const getCsrfToken = async (context: string) => {
-        const response = await fetch(`${API_BASE_URL}/api/csrf-token/${context}`, {
+        const response = await fetch(`/api/csrf-token/${context}`, {
             method: "POST",
         });
         const csrfToken = response.headers.get("CSRF-TOKEN");
@@ -33,7 +31,7 @@ export default function Login() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        const response = await fetch(`${API_BASE_URL}/api/login`, {
+        const response = await fetch(`/api/login`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

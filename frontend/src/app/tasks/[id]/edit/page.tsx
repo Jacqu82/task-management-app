@@ -17,6 +17,9 @@ export default function EditTask() {
     const [task, setTask] = useState<Task | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [validationErrors, setErrors] = useState<{ title?: string }>({});
+    const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+    const router = useRouter();
 
     useEffect(() => {
         async function fetchTask() {
@@ -46,30 +49,40 @@ export default function EditTask() {
         }
     };
 
-    const [validationErrors, setErrors] = useState<{ title?: string }>({});
-    const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-    const router = useRouter();
+    const parseErrors = (errors: any[]) => {
+        return errors.reduce((acc: { [key: string]: string }, error) => {
+            if (error.source && error.source.pointer) {
+                const field = error.source.pointer.replace("/data/attributes/", "");
+                acc[field] = error.detail;
+            }
+            return acc;
+        }, {});
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setErrors({});
 
-        const response = await fetch(`${API_BASE_URL}/api/tasks/${id}`, {
-            method: "PUT",
-            credentials: "include",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(task),
-        });
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/tasks/${id}`, {
+                method: "PUT",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(task),
+            });
 
-        const responseData = await response.json();
+            const responseData = await response.json();
 
-        if (response.ok) {
-            setErrors({});
-            router.push("/tasks");
-        } else {
-            setErrors(responseData.validation_errors || {});
+            if (response.ok) {
+                setErrors({});
+                router.push("/tasks");
+            } else {
+                setErrors(parseErrors(responseData.errors || []));
+            }
+        } catch (error) {
+            console.error(error);
         }
     };
 

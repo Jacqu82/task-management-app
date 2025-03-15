@@ -40,11 +40,7 @@ export async function refreshToken() {
             credentials: 'include',
         });
 
-        if (response.ok) {
-            return true;
-        } else {
-            return false;
-        }
+        return response.ok;
     } catch (error) {
         return false;
     }

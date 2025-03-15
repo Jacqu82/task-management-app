@@ -10,36 +10,49 @@ export default function NewTask() {
         title: "",
         description: "",
     });
+    const [validationErrors, setErrors] = useState<{ title?: string }>({});
+    const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+    const router = useRouter();
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
     };
 
-    const [validationErrors, setErrors] = useState<{ title?: string }>({});
-    const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-    const router = useRouter();
+    const parseErrors = (errors: any[]) => {
+        return errors.reduce((acc: { [key: string]: string }, error) => {
+            if (error.source && error.source.pointer) {
+                const field = error.source.pointer.replace("/data/attributes/", "");
+                acc[field] = error.detail;
+            }
+            return acc;
+        }, {});
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setErrors({});
 
-        const response = await fetch(`${API_BASE_URL}/api/tasks`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(formData),
-        });
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/tasks`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(formData),
+            });
 
-        const responseData = await response.json();
+            const responseData = await response.json();
 
-        if (response.ok) {
-            setFormData({ title: "", description: "" });
-            setErrors({});
-            router.push("/tasks");
-        } else {
-            setErrors(responseData.validation_errors || {});
+            if (response.ok) {
+                setFormData({ title: "", description: "" });
+                setErrors({});
+                router.push("/tasks");
+            } else {
+                setErrors(parseErrors(responseData.errors || []));
+            }
+        } catch (error) {
+            console.error(error);
         }
     };
 

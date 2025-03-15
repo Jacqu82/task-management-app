@@ -6,6 +6,7 @@ namespace App\Controller;
 
 use App\Repository\UserRepository;
 use App\Service\CookieProvider;
+use Exception;
 use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -33,7 +34,7 @@ class SecurityController extends AbstractController
         $csrfToken = $request->headers->get('CSRF-TOKEN');
 
         if (!$this->csrfTokenManager->isTokenValid(new CsrfToken('login', $csrfToken))) {
-            return new JsonResponse(['error' => 'Invalid CSRF token'], 403);
+            return new JsonResponse(['error' => 'Invalid CSRF token'], Response::HTTP_FORBIDDEN);
         }
 
         $data = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
@@ -49,13 +50,21 @@ class SecurityController extends AbstractController
             return new JsonResponse(['error' => 'Niepoprawny login lub hasło'], Response::HTTP_BAD_REQUEST);
         }
 
-        $token = $this->jwtEncoder->encode([
+        $accessToken = $this->jwtEncoder->encode([
             'username' => $user->getEmail(),
+            'exp' => time() + 3600,
+            'type' => 'access'
+        ]);
+
+        $refreshToken = $this->jwtEncoder->encode([
+            'username' => $user->getEmail(),
+            'exp' => time() + 3600 * 24 * 30,
+            'type' => 'refresh'
         ]);
 
         $response = new JsonResponse(['status' => 'success'], Response::HTTP_OK);
-        $response->headers->setCookie($this->cookieProvider->getAccessToken($token));
-        $response->headers->setCookie($this->cookieProvider->getRefreshToken($token));
+        $response->headers->setCookie($this->cookieProvider->getAccessToken($accessToken));
+        $response->headers->setCookie($this->cookieProvider->getRefreshToken($refreshToken));
 
         return $response;
     }
@@ -76,20 +85,26 @@ class SecurityController extends AbstractController
         $refreshToken = $request->cookies->get('refresh_token');
 
         if (!$refreshToken) {
-            return new JsonResponse(['message' => 'Brak refresh tokena'], 401);
+            return new JsonResponse(['message' => 'Brak refresh tokena'], Response::HTTP_UNAUTHORIZED);
         }
 
         try {
             $decoded = $this->jwtEncoder->decode($refreshToken);
-        } catch (\Exception $e) {
-            return $this->json(['error' => 'Nieprawidłowy refresh token'], 401);
+
+            if (!isset($decoded['type']) || $decoded['type'] !== 'refresh') {
+                return new JsonResponse(['message' => 'Nieprawidłowy typ tokena'], Response::HTTP_UNAUTHORIZED);
+            }
+        } catch (Exception $e) {
+            return new JsonResponse(['message' => 'Nieprawidłowy refresh token'], Response::HTTP_UNAUTHORIZED);
         }
 
         $newAccessToken = $this->jwtEncoder->encode([
             'username' => $decoded['username'],
+            'exp' => time() + 3600,
+            'type' => 'access'
         ]);
 
-        $response = new JsonResponse(['message' => 'Token odświeżony']);
+        $response = new JsonResponse(['message' => 'Token odświeżony'], Response::HTTP_OK);
         $response->headers->setCookie($this->cookieProvider->getAccessToken($newAccessToken));
 
         return $response;

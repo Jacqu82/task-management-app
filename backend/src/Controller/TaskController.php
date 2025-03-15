@@ -8,6 +8,7 @@ use App\Entity\Task;
 use App\Event\TaskEvent;
 use App\Model\TaskDTO;
 use App\Repository\TaskRepository;
+use App\Service\ValidationProvider;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -15,15 +16,14 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class TaskController extends AbstractController
 {
     public function __construct(
         private readonly TaskRepository $taskRepository,
         private readonly SerializerInterface $serializer,
-        private readonly ValidatorInterface $validator,
         private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly ValidationProvider $validationProvider,
     ) {
     }
 
@@ -31,7 +31,7 @@ class TaskController extends AbstractController
     public function list(): Response
     {
         return new JsonResponse(
-            $this->serializer->serialize($this->taskRepository->getAll(), 'json', ['groups' => ['api']]),
+            $this->serializer->serialize($this->taskRepository->getByUser($this->getUser()), 'json', ['groups' => ['api']]),
             Response::HTTP_OK,
             [],
             true
@@ -42,16 +42,10 @@ class TaskController extends AbstractController
     public function create(Request $request): Response
     {
         $taskDTO = $this->serializer->deserialize($request->getContent(), TaskDTO::class, 'json');
-        $validationErrors = $this->validator->validate($taskDTO);
+        $validationMessages = $this->validationProvider->getErrors($taskDTO);
 
-        if (count($validationErrors) > 0) {
-            $validationErrorMessages = [];
-
-            foreach ($validationErrors as $validationError) {
-                $validationErrorMessages[$validationError->getPropertyPath()] = $validationError->getMessage();
-            }
-
-            return new JsonResponse(['validation_errors' => $validationErrorMessages], Response::HTTP_BAD_REQUEST);
+        if (!empty($validationMessages)) {
+            return new JsonResponse(['errors' => $validationMessages], Response::HTTP_BAD_REQUEST);
         }
 
         $this->eventDispatcher->dispatch(new TaskEvent($taskDTO));
@@ -62,17 +56,13 @@ class TaskController extends AbstractController
     #[Route('/api/tasks/{id}', name: 'api_task_update', methods: ['PUT'])]
     public function update(Task $task, Request $request): Response
     {
+        $this->denyAccessUnlessGranted('update', $task);
+
         $taskDTO = $this->serializer->deserialize($request->getContent(), TaskDTO::class, 'json');
-        $validationErrors = $this->validator->validate($taskDTO);
+        $validationMessages = $this->validationProvider->getErrors($taskDTO);
 
-        if (count($validationErrors) > 0) {
-            $validationErrorMessages = [];
-
-            foreach ($validationErrors as $validationError) {
-                $validationErrorMessages[$validationError->getPropertyPath()] = $validationError->getMessage();
-            }
-
-            return new JsonResponse(['validation_errors' => $validationErrorMessages], Response::HTTP_BAD_REQUEST);
+        if (!empty($validationMessages)) {
+            return new JsonResponse(['errors' => $validationMessages], Response::HTTP_BAD_REQUEST);
         }
 
         $this->eventDispatcher->dispatch(new TaskEvent($taskDTO, $task));
@@ -83,14 +73,18 @@ class TaskController extends AbstractController
     #[Route('/api/tasks/{id}', name: 'api_task_delete', methods: ['DELETE'])]
     public function delete(Task $task): JsonResponse
     {
+        $this->denyAccessUnlessGranted('delete', $task);
+
         $this->taskRepository->removeWithFlush($task);
 
-        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+        return new JsonResponse([], Response::HTTP_NO_CONTENT);
     }
 
     #[Route('/api/tasks/{id}', name: 'api_task_show', methods: ['GET'])]
     public function show(Task $task): JsonResponse
     {
+        $this->denyAccessUnlessGranted('show', $task);
+
         return new JsonResponse(
             $this->serializer->serialize($task, 'json', ['groups' => ['api']]),
             Response::HTTP_OK,

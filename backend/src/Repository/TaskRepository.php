@@ -6,6 +6,7 @@ namespace App\Repository;
 
 use App\Entity\Task;
 use App\Entity\User;
+use Doctrine\ORM\Query;
 use Doctrine\Persistence\ManagerRegistry;
 
 class TaskRepository extends AbstractRepository
@@ -15,17 +16,13 @@ class TaskRepository extends AbstractRepository
         parent::__construct($registry, Task::class);
     }
 
-    /**
-     * @return array|Task[]
-     */
-    public function getByUser(User $user): array
+    public function getByUser(User $user): Query
     {
         return $this->createQueryBuilder('t')
             ->andWhere('t.user = :user')
             ->setParameter('user', $user)
             ->orderBy('t.id', 'DESC')
             ->getQuery()
-            ->getResult()
         ;
     }
 }

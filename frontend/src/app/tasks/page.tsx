@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import {useEffect, useState} from "react";
-import {Edit, Trash2} from "lucide-react"; // Ikony
+import {Edit, Trash2} from "lucide-react";
+import {useRouter, useSearchParams} from "next/navigation";
+import {format} from 'date-fns';
 import styles from "./tasks.module.css";
 
 interface Task {
@@ -13,21 +15,44 @@ interface Task {
     createdAt: string;
 }
 
+interface Meta {
+    totalCount: number;
+    itemsPerPage: number;
+    currentPage: number;
+    totalPages: number;
+}
+
+interface Links {
+    self: string;
+    first: string;
+    last: string;
+    next?: string;
+    prev?: string;
+}
+
 export default function Tasks() {
     const [tasks, setTasks] = useState<Task[]>([]);
+    const [meta, setMeta] = useState<Meta | null>(null);
+    const [links, setLinks] = useState<Links | null>(null);
+    const searchParams = useSearchParams();
+    const router = useRouter();
+    const currentPage = Number(searchParams.get("page")) || 1;
+
+    const fetchTasks = async (page: number) => {
+        const response = await fetch(`/api/tasks?page=${page}`);
+        const data = await response.json();
+        setTasks(data.data);
+        setMeta(data.meta);
+        setLinks(data.links);
+    };
 
     useEffect(() => {
-        async function fetchTasks() {
-            const response = await fetch('/api/tasks', {
-                method: 'GET',
-                credentials: 'include',
-            });
-            const data = await response.json();
-            setTasks(data);
-        }
+        fetchTasks(currentPage);
+    }, [currentPage]);
 
-        fetchTasks();
-    }, []);
+    const changePage = (page: number) => {
+        router.push(`?page=${page}`, { scroll: false });
+    };
 
     return (
         <main className={styles.main}>
@@ -51,7 +76,7 @@ export default function Tasks() {
                             </span>
                             <span className={styles.taskDescription}>{task.description}</span>
                             <span className={styles.taskStatus}>{task.statusName}</span>
-                            <span className={styles.taskDate}>{task.createdAt}</span>
+                            <span className={styles.taskDate}>{format(new Date(task.createdAt), 'HH:mm dd-MM-yyyy')}</span>
                             <div className={styles.taskActions}>
                                 <Link href={`/tasks/${task.id}/edit`} className={styles.iconButton}>
                                     <Edit size={20} />
@@ -64,6 +89,25 @@ export default function Tasks() {
                     ))
                 ) : (
                     <p>Brak zadań do wyświetlenia.</p>
+                )}
+                {meta && links && (
+                    <div className={styles.pagination}>
+                        <button
+                            disabled={!links?.prev}
+                            onClick={() => changePage(currentPage - 1)}
+                            className={`${styles.pageBtn} ${!links?.prev ? styles.disabled : ""}`}>
+                            Poprzednia
+                        </button>
+                        <span className={styles.pageInfo}>
+                            Strona {meta?.currentPage} z {meta?.totalPages}
+                        </span>
+                        <button
+                            disabled={!links?.next}
+                            onClick={() => changePage(currentPage + 1)}
+                            className={`${styles.pageBtn} ${!links?.next ? styles.disabled : ""}`}>
+                            Następna
+                        </button>
+                    </div>
                 )}
             </div>
         </main>

@@ -24,6 +24,7 @@
         "symfony/intl": "7.2.*",
         "symfony/mime": "7.2.*",
         "symfony/monolog-bundle": "^3.10",
+        "symfony/phpunit-bridge": "^7.2",
         "symfony/process": "7.2.*",
         "symfony/property-access": "7.2.*",
         "symfony/property-info": "7.2.*",

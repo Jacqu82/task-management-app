@@ -60,6 +60,19 @@ class TaskController extends AbstractController
         return new JsonResponse(['status' => 'success'], Response::HTTP_CREATED);
     }
 
+    #[Route('/api/tasks/{id}', name: 'api_task_show', methods: ['GET'])]
+    public function show(Task $task): JsonResponse
+    {
+        $this->denyAccessUnlessGranted('show', $task);
+
+        return new JsonResponse(
+            $this->serializer->serialize($task, 'json', ['groups' => ['api']]),
+            Response::HTTP_OK,
+            [],
+            true
+        );
+    }
+
     #[Route('/api/tasks/{id}', name: 'api_task_update', methods: ['PUT'])]
     public function update(Task $task, Request $request): Response
     {
@@ -85,18 +98,5 @@ class TaskController extends AbstractController
         $this->taskRepository->removeWithFlush($task);
 
         return new JsonResponse([], Response::HTTP_NO_CONTENT);
-    }
-
-    #[Route('/api/tasks/{id}', name: 'api_task_show', methods: ['GET'])]
-    public function show(Task $task): JsonResponse
-    {
-        $this->denyAccessUnlessGranted('show', $task);
-
-        return new JsonResponse(
-            $this->serializer->serialize($task, 'json', ['groups' => ['api']]),
-            Response::HTTP_OK,
-            [],
-            true
-        );
     }
 }

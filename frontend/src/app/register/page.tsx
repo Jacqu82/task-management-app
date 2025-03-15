@@ -8,16 +8,15 @@ export default function Register() {
         email: "",
         password: "",
     });
+    const [validationErrors, setErrors] = useState<{ email?: string; password?: string }>({});
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
     };
-
-    const [validationErrors, setErrors] = useState<{ email?: string; password?: string }>({});
-    const [successMessage, setSuccessMessage] = useState<string | null>(null);
-    const [errorMessage, setErrorMessage] = useState<string | null>(null);
-    const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
     const getCsrfToken = async (context: string) => {
         const response = await fetch(`${API_BASE_URL}/api/csrf-token/${context}`, {
@@ -32,30 +31,44 @@ export default function Register() {
         return csrfToken;
     };
 
+    const parseErrors = (errors: any[]) => {
+        return errors.reduce((acc: { [key: string]: string }, error) => {
+            if (error.source && error.source.pointer) {
+                const field = error.source.pointer.replace("/data/attributes/", "");
+                acc[field] = error.detail;
+            }
+            return acc;
+        }, {});
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setErrors({});
 
-        const response = await fetch(`${API_BASE_URL}/api/users`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "CSRF-TOKEN": await getCsrfToken("register"),
-            },
-            body: JSON.stringify(formData),
-        });
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/users`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "CSRF-TOKEN": await getCsrfToken("register"),
+                },
+                body: JSON.stringify(formData),
+            });
 
-        const responseData = await response.json();
+            const responseData = await response.json();
 
-        if (response.ok) {
-            setFormData({ email: "", password: "" });
-            setErrors({});
-            setSuccessMessage(responseData.message);
-            setErrorMessage(null);
-        } else {
-            setErrors(responseData.validation_errors || {});
-            setSuccessMessage(null);
-            setErrorMessage(responseData.error);
+            if (response.ok) {
+                setFormData({ email: "", password: "" });
+                setErrors({});
+                setSuccessMessage(responseData.message);
+                setErrorMessage(null);
+            } else {
+                setErrors(parseErrors(responseData.errors || []));
+                setSuccessMessage(null);
+                setErrorMessage(responseData.error);
+            }
+        } catch (error) {
+            setErrorMessage("Błąd serwera. Spróbuj ponownie później.");
         }
     };
 

@@ -18,7 +18,16 @@ export default function NewTask() {
         setFormData({ ...formData, [name]: value });
     };
 
-    const parseErrors = (errors: any[]) => {
+    interface ErrorSource {
+        pointer: string;
+    }
+
+    interface ErrorObject {
+        source: ErrorSource;
+        detail: string;
+    }
+
+    const parseErrors = (errors: ErrorObject[]): { [key: string]: string } => {
         return errors.reduce((acc: { [key: string]: string }, error) => {
             if (error.source && error.source.pointer) {
                 const field = error.source.pointer.replace("/data/attributes/", "");

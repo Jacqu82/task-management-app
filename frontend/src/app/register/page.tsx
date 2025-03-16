@@ -29,8 +29,16 @@ export default function Register() {
 
         return csrfToken;
     };
+    interface ErrorSource {
+        pointer: string;
+    }
 
-    const parseErrors = (errors: any[]) => {
+    interface ErrorObject {
+        source: ErrorSource;
+        detail: string;
+    }
+
+    const parseErrors = (errors: ErrorObject[]): { [key: string]: string } => {
         return errors.reduce((acc: { [key: string]: string }, error) => {
             if (error.source && error.source.pointer) {
                 const field = error.source.pointer.replace("/data/attributes/", "");

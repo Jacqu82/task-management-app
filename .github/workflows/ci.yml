@@ -36,9 +36,13 @@ jobs:
                 working-directory: frontend
                 run: npx playwright install --with-deps
 
+            -   name: Build frontend
+                working-directory: frontend
+                run: npm run build
+
             -   name: Run PHPUnit tests
                 working-directory: backend
-                run: vendor/bin/phpunit
+                run: bin/phpunit
 
             -   name: Run PHPCS (PSR-12)
                 working-directory: backend

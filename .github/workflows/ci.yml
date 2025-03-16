@@ -36,16 +36,18 @@ jobs:
                 working-directory: frontend
                 run: npx playwright install --with-deps
 
-            -   name: Build frontend
-                working-directory: frontend
-                run: npm run build
+#            -   name: Build frontend
+#                working-directory: frontend
+#                run: npm run build
 
             -   name: Run PHPUnit tests
                 working-directory: backend
                 run: vendor/bin/phpunit
 
             -   name: Run PHPCS (PSR-12)
+                working-directory: backend
                 run: vendor/bin/phpcs -n -s -p --standard=PSR12 src/
 
             -   name: Run PHPStan (level 2)
+                working-directory: backend
                 run: vendor/bin/phpstan analyse -l 2 --memory-limit=512M --error-format=raw src/

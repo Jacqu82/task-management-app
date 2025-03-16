@@ -16,7 +16,7 @@ export default function EditTask() {
     const { id } = useParams();
     const [task, setTask] = useState<Task | null>(null);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
+    const [error] = useState("");
     const [validationErrors, setErrors] = useState<{ title?: string }>({});
     const router = useRouter();
 

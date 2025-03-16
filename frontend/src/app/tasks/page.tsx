@@ -68,7 +68,7 @@ export default function Tasks() {
                     <span>Akcje</span>
                 </div>
 
-                {tasks.length > 0 ? (
+                {Array.isArray(tasks) && tasks.length > 0 ? (
                     tasks.map(task => (
                         <div key={task.id} className={styles.taskRow}>
                             <span className={styles.taskTitle}>

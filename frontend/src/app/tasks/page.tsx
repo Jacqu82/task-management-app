@@ -1,7 +1,7 @@
 "use client";
 
+import {Suspense, useEffect, useState} from "react";
 import Link from "next/link";
-import {useEffect, useState} from "react";
 import {Edit, Trash2} from "lucide-react";
 import {useRouter, useSearchParams} from "next/navigation";
 import {format} from 'date-fns';
@@ -30,7 +30,7 @@ interface Links {
     prev?: string;
 }
 
-export default function Tasks() {
+function TasksContent() {
     const [tasks, setTasks] = useState<Task[]>([]);
     const [meta, setMeta] = useState<Meta | null>(null);
     const [links, setLinks] = useState<Links | null>(null);
@@ -68,7 +68,7 @@ export default function Tasks() {
                     <span>Akcje</span>
                 </div>
 
-                {tasks.length > 0 ? (
+                {Array.isArray(tasks) && tasks.length > 0 ? (
                     tasks.map(task => (
                         <div key={task.id} className={styles.taskRow}>
                             <span className={styles.taskTitle}>
@@ -111,6 +111,14 @@ export default function Tasks() {
                 )}
             </div>
         </main>
+    );
+}
+
+export default function Tasks() {
+    return (
+        <Suspense fallback={<div>Loading tasks...</div>}>
+            <TasksContent />
+        </Suspense>
     );
 }
 

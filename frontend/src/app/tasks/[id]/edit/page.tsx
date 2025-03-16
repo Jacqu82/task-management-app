@@ -16,7 +16,7 @@ export default function EditTask() {
     const { id } = useParams();
     const [task, setTask] = useState<Task | null>(null);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState("");
+    const [error] = useState("");
     const [validationErrors, setErrors] = useState<{ title?: string }>({});
     const router = useRouter();
 
@@ -32,8 +32,10 @@ export default function EditTask() {
 
                 const data = await response.json();
                 setTask(data);
-            } catch (err) {
-                setError("Nie udało się załadować zadania");
+            } catch (error: unknown) {
+                if (error instanceof Error) {
+                    console.error("Błąd:", error.message);
+                }
             } finally {
                 setLoading(false);
             }
@@ -48,7 +50,16 @@ export default function EditTask() {
         }
     };
 
-    const parseErrors = (errors: any[]) => {
+    interface ErrorSource {
+        pointer: string;
+    }
+
+    interface ErrorObject {
+        source: ErrorSource;
+        detail: string;
+    }
+
+    const parseErrors = (errors: ErrorObject[]): { [key: string]: string } => {
         return errors.reduce((acc: { [key: string]: string }, error) => {
             if (error.source && error.source.pointer) {
                 const field = error.source.pointer.replace("/data/attributes/", "");

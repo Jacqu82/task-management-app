@@ -1,0 +1,53 @@
+name: CI
+
+on:
+    push:
+        branches:
+            - '**'
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            -   name: Checkout repo
+                uses: actions/checkout@v4
+
+            -   name: Set up PHP
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: '8.3'
+                    extensions: intl, zip, gd
+                    tools: composer
+                    coverage: none
+
+            -   name: Install dependencies
+                working-directory: backend
+                run: composer install --no-progress --prefer-dist
+
+            -   name: Set up Node.js
+                uses: actions/setup-node@v3
+                with:
+                    node-version: '22'
+
+            -   name: Install Node dependencies
+                working-directory: frontend
+                run: npm install
+
+            -   name: Install Playwright browsers
+                working-directory: frontend
+                run: npx playwright install --with-deps
+
+            -   name: Build frontend
+                working-directory: frontend
+                run: npm run build
+
+            -   name: Run PHPUnit tests
+                working-directory: backend
+                run: bin/phpunit
+
+            -   name: Run PHPCS (PSR-12)
+                working-directory: backend
+                run: vendor/bin/phpcs -n -s -p --standard=PSR12 src/
+
+            -   name: Run PHPStan (level 2)
+                working-directory: backend
+                run: vendor/bin/phpstan analyse -l 2 --memory-limit=512M --error-format=raw src/

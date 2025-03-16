@@ -23,7 +23,9 @@ export async function checkAuth() {
             }
         }
     } catch (error) {
-        return null;
+        if (error instanceof Error) {
+            console.error("Błąd:", error.message);
+        }
     }
 
     return null;
@@ -38,6 +40,9 @@ export async function refreshToken() {
 
         return response.ok;
     } catch (error) {
+        if (error instanceof Error) {
+            console.error("Błąd:", error.message);
+        }
         return false;
     }
 }

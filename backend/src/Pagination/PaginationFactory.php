@@ -51,7 +51,8 @@ class PaginationFactory
         $createLinkUrl = function ($targetPage) use ($route, $routeParams) {
             return $this->router->generate(
                 $route,
-                array_merge($routeParams, ['page' => $targetPage]));
+                array_merge($routeParams, ['page' => $targetPage])
+            );
         };
 
         $paginatedCollection->addLink('self', $createLinkUrl($page));

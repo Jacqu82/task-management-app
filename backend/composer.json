@@ -24,7 +24,6 @@
         "symfony/intl": "7.2.*",
         "symfony/mime": "7.2.*",
         "symfony/monolog-bundle": "^3.10",
-        "symfony/phpunit-bridge": "^7.2",
         "symfony/process": "7.2.*",
         "symfony/property-access": "7.2.*",
         "symfony/property-info": "7.2.*",
@@ -82,8 +81,11 @@
         }
     },
     "require-dev": {
+        "phpstan/phpstan": "^2.1",
+        "squizlabs/php_codesniffer": "^3.11",
         "symfony/browser-kit": "7.2.*",
         "symfony/debug-bundle": "7.2.*",
+        "symfony/phpunit-bridge": "^7.2",
         "symfony/stopwatch": "7.2.*"
     }
 }

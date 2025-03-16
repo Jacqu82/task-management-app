@@ -11,7 +11,9 @@ use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 class CsrfController extends AbstractController
 {
-    public function __construct(private readonly CsrfTokenManagerInterface $csrfTokenManager) {}
+    public function __construct(private readonly CsrfTokenManagerInterface $csrfTokenManager)
+    {
+    }
 
     #[Route('/api/csrf-token/{context}', name: 'csrf_token', methods: ['POST'])]
     public function getCsrfToken(string $context): JsonResponse

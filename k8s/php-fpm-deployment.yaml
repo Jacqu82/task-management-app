@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: php-fpm
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            app: php-fpm
+    template:
+        metadata:
+            labels:
+                app: php-fpm
+        spec:
+            containers:
+                - name: php-fpm
+                  image: php:8.3-fpm
+                  ports:
+                      - containerPort: 9000
+                  volumeMounts:
+                      - name: backend-storage
+                        mountPath: /web/backend
+            volumes:
+                - name: backend-storage
+                  persistentVolumeClaim:
+                      claimName: backend-pvc

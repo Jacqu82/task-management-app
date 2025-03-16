@@ -7,6 +7,7 @@ namespace App\Controller;
 use App\Entity\Task;
 use App\Event\TaskEvent;
 use App\Model\TaskDTO;
+use App\Pagination\PaginationFactory;
 use App\Repository\TaskRepository;
 use App\Service\ValidationProvider;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -24,14 +25,20 @@ class TaskController extends AbstractController
         private readonly SerializerInterface $serializer,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly ValidationProvider $validationProvider,
+        private readonly PaginationFactory $paginationFactory,
     ) {
     }
 
     #[Route('/api/tasks', name: 'api_task_list', methods: ['GET'])]
     public function list(): Response
     {
+        $paginatedCollection = $this->paginationFactory->createCollection(
+            $this->taskRepository->getByUser($this->getUser()),
+            'api_task_list'
+        );
+
         return new JsonResponse(
-            $this->serializer->serialize($this->taskRepository->getByUser($this->getUser()), 'json', ['groups' => ['api']]),
+            $this->serializer->serialize($paginatedCollection, 'json', ['groups' => ['api']]),
             Response::HTTP_OK,
             [],
             true
@@ -51,6 +58,19 @@ class TaskController extends AbstractController
         $this->eventDispatcher->dispatch(new TaskEvent($taskDTO));
 
         return new JsonResponse(['status' => 'success'], Response::HTTP_CREATED);
+    }
+
+    #[Route('/api/tasks/{id}', name: 'api_task_show', methods: ['GET'])]
+    public function show(Task $task): JsonResponse
+    {
+        $this->denyAccessUnlessGranted('show', $task);
+
+        return new JsonResponse(
+            $this->serializer->serialize($task, 'json', ['groups' => ['api']]),
+            Response::HTTP_OK,
+            [],
+            true
+        );
     }
 
     #[Route('/api/tasks/{id}', name: 'api_task_update', methods: ['PUT'])]
@@ -78,18 +98,5 @@ class TaskController extends AbstractController
         $this->taskRepository->removeWithFlush($task);
 
         return new JsonResponse([], Response::HTTP_NO_CONTENT);
-    }
-
-    #[Route('/api/tasks/{id}', name: 'api_task_show', methods: ['GET'])]
-    public function show(Task $task): JsonResponse
-    {
-        $this->denyAccessUnlessGranted('show', $task);
-
-        return new JsonResponse(
-            $this->serializer->serialize($task, 'json', ['groups' => ['api']]),
-            Response::HTTP_OK,
-            [],
-            true
-        );
     }
 }

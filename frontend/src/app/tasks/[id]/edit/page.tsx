@@ -18,7 +18,6 @@ export default function EditTask() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [validationErrors, setErrors] = useState<{ title?: string }>({});
-    const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
     const router = useRouter();
 
     useEffect(() => {
@@ -64,7 +63,7 @@ export default function EditTask() {
         setErrors({});
 
         try {
-            const response = await fetch(`${API_BASE_URL}/api/tasks/${id}`, {
+            const response = await fetch(`/api/tasks/${id}`, {
                 method: "PUT",
                 credentials: "include",
                 headers: {

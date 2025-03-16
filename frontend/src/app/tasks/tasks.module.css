@@ -87,6 +87,42 @@
     color: #0051a3;
 }
 
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.pageBtn {
+    padding: 8px 16px;
+    border: 1px solid #007bff;
+    background-color: #007bff;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.3s ease;
+}
+
+.pageBtn:hover {
+    background-color: #0056b3;
+}
+
+.pageBtn.disabled {
+    background-color: #cccccc;
+    border-color: #cccccc;
+    color: #666666;
+    cursor: not-allowed;
+}
+
+.pageInfo {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+
 @media (max-width: 768px) {
     .taskHeader, .taskRow {
         grid-template-columns: 1fr;

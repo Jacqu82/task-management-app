@@ -98,8 +98,8 @@ class Task
     }
 
     #[Groups('api')]
-    public function getCreatedAt(): string
+    public function getCreatedAt(): DateTimeInterface
     {
-        return $this->createdAt->format('d-m-Y');
+        return $this->createdAt;
     }
 }

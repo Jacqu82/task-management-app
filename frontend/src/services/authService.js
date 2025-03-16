@@ -1,8 +1,6 @@
 export async function checkAuth() {
-    const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-
     try {
-        let response = await fetch(`${API_BASE_URL}/api/me`, {
+        let response = await fetch(`/api/me`, {
             method: 'POST',
             credentials: 'include',
         });
@@ -14,7 +12,7 @@ export async function checkAuth() {
         if (response.status === 401) {
             const refreshed = await refreshToken();
             if (refreshed) {
-                response = await fetch(`${API_BASE_URL}/api/me`, {
+                response = await fetch(`/api/me`, {
                     method: 'POST',
                     credentials: 'include',
                 });
@@ -32,10 +30,8 @@ export async function checkAuth() {
 }
 
 export async function refreshToken() {
-    const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-
     try {
-        const response = await fetch(`${API_BASE_URL}/api/refresh-token`, {
+        const response = await fetch(`/api/refresh-token`, {
             method: 'POST',
             credentials: 'include',
         });
@@ -47,10 +43,8 @@ export async function refreshToken() {
 }
 
 export async function logout() {
-    const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-
     try {
-        await fetch(`${API_BASE_URL}/api/logout`, {
+        await fetch(`/api/logout`, {
             method: 'POST',
             credentials: 'include',
         });

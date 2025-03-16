@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Service\CookieProvider;
 use Exception;
@@ -72,11 +73,14 @@ class SecurityController extends AbstractController
     #[Route('/api/me', name: 'api_me', methods: ['POST'])]
     public function getAuthenticatedUser(): JsonResponse
     {
-        if (null === $this->getUser()) {
+        /** @var User $user */
+        $user = $this->getUser();
+
+        if (null === $user) {
             return new JsonResponse(['error' => 'User not found'], Response::HTTP_UNAUTHORIZED);
         }
 
-        return new JsonResponse(['email' => $this->getUser()->getEmail()], Response::HTTP_OK);
+        return new JsonResponse(['email' => $user->getEmail()], Response::HTTP_OK);
     }
 
     #[Route('/api/refresh-token', name: 'api_refresh_token', methods: ['POST'])]

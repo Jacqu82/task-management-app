@@ -10,7 +10,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 readonly class TaskSubscriber implements EventSubscriberInterface
 {
-    public function __construct(#[AutowireIterator('task_handler')] private iterable $handlers) {
+    public function __construct(#[AutowireIterator('task_handler')] private iterable $handlers)
+    {
     }
 
     public function onTaskSave(TaskEvent $event): void

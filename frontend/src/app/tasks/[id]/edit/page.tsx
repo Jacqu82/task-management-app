@@ -32,8 +32,10 @@ export default function EditTask() {
 
                 const data = await response.json();
                 setTask(data);
-            } catch (err) {
-                setError("Nie udało się załadować zadania");
+            } catch (error: unknown) {
+                if (error instanceof Error) {
+                    console.error("Błąd:", error.message);
+                }
             } finally {
                 setLoading(false);
             }

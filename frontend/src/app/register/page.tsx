@@ -74,8 +74,10 @@ export default function Register() {
                 setSuccessMessage(null);
                 setErrorMessage(responseData.error);
             }
-        } catch (error) {
-            setErrorMessage("Błąd serwera. Spróbuj ponownie później.");
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                console.error("Błąd:", error.message);
+            }
         }
     };
 

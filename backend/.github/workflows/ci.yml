@@ -1,0 +1,40 @@
+name: CI
+
+on:
+    push:
+        branches:
+            - '**'
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            -   name: Checkout repo
+                uses: actions/checkout@v4
+
+            -   name: Set up PHP
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: '8.3'
+                    extensions: intl, zip, gd
+                    tools: composer
+                    coverage: none
+
+            -   name: Install dependencies
+                run: composer install --no-progress --no-suggest --prefer-dist
+
+            -   name: Set up Node.js
+                uses: actions/setup-node@v3
+                with:
+                    node-version: '22'
+
+            -   name: Install Node dependencies
+                run: yarn install
+
+            -   name: Run PHPUnit tests
+                run: vendor/bin/phpunit
+
+            -   name: Run PHPCS (PSR-12)
+                run: vendor/bin/phpcs -n -s -p --standard=PSR12 src/
+
+            -   name: Run PHPStan (level 2)
+                run: vendor/bin/phpstan analyse -l 2 --memory-limit=512M --error-format=raw src/

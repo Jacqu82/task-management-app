@@ -6,6 +6,7 @@ namespace App\Tests\Service;
 
 use App\Service\ValidationProvider;
 use PHPUnit\Framework\TestCase;
+use stdClass;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -35,10 +36,13 @@ class ValidationProviderTest extends TestCase
             ),
         ]);
 
-        $validatorMock->method('validate')->willReturn($violations);
+        $validatorMock
+            ->method('validate')
+            ->willReturn($violations)
+        ;
 
         $validationProvider = new ValidationProvider($validatorMock);
-        $errors = $validationProvider->getErrors(new \stdClass());
+        $errors = $validationProvider->getErrors(new stdClass());
 
         $this->assertCount(2, $errors);
         $this->assertSame('/data/attributes/email', $errors[0]['source']['pointer']);
@@ -52,10 +56,13 @@ class ValidationProviderTest extends TestCase
     public function testReturnsEmptyArrayForNoErrors(): void
     {
         $validatorMock = $this->createMock(ValidatorInterface::class);
-        $validatorMock->method('validate')->willReturn(new ConstraintViolationList());
+        $validatorMock
+            ->method('validate')
+            ->willReturn(new ConstraintViolationList())
+        ;
 
         $validationProvider = new ValidationProvider($validatorMock);
-        $errors = $validationProvider->getErrors(new \stdClass());
+        $errors = $validationProvider->getErrors(new stdClass());
 
         $this->assertEmpty($errors);
     }

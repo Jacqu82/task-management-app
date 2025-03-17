@@ -73,7 +73,6 @@
     margin-top: 5px;
 }
 
-/* Responsywność */
 @media (max-width: 480px) {
     .form {
         padding: 15px;

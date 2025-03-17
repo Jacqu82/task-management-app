@@ -27,7 +27,7 @@ class UserController extends AbstractController
     ) {
     }
 
-    #[Route('/api/users', name: 'api_user_create', methods: ['POST'])]
+    #[Route('/api/users', name: 'api_user_create', methods: [Request::METHOD_POST])]
     public function create(Request $request): JsonResponse
     {
         $csrfToken = $request->headers->get('CSRF-TOKEN');

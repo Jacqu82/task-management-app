@@ -29,7 +29,7 @@ class SecurityController extends AbstractController
     ) {
     }
 
-    #[Route('/api/login', name: 'api_login', methods: ['POST'])]
+    #[Route('/api/login', name: 'api_login', methods: [Request::METHOD_POST])]
     public function login(Request $request): JsonResponse
     {
         $csrfToken = $request->headers->get('CSRF-TOKEN');
@@ -70,7 +70,7 @@ class SecurityController extends AbstractController
         return $response;
     }
 
-    #[Route('/api/me', name: 'api_me', methods: ['POST'])]
+    #[Route('/api/me', name: 'api_me', methods: [Request::METHOD_POST])]
     public function getAuthenticatedUser(): JsonResponse
     {
         /** @var User $user */
@@ -83,7 +83,7 @@ class SecurityController extends AbstractController
         return new JsonResponse(['email' => $user->getEmail()], Response::HTTP_OK);
     }
 
-    #[Route('/api/refresh-token', name: 'api_refresh_token', methods: ['POST'])]
+    #[Route('/api/refresh-token', name: 'api_refresh_token', methods: [Request::METHOD_POST])]
     public function refreshToken(Request $request): JsonResponse
     {
         $refreshToken = $request->cookies->get('refresh_token');
@@ -114,7 +114,7 @@ class SecurityController extends AbstractController
         return $response;
     }
 
-    #[Route('/api/logout', methods: ['POST'])]
+    #[Route('/api/logout', methods: [Request::METHOD_POST])]
     public function logout(Request $request): JsonResponse
     {
         $response = new JsonResponse(['message' => 'Wylogowano']);

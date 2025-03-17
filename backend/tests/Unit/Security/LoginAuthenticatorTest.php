@@ -56,7 +56,10 @@ class LoginAuthenticatorTest extends TestCase
 
     public function testAuthenticateThrowsExceptionWhenTokenIsInvalid(): void
     {
-        $this->jwtEncoder->method('decode')->willThrowException(new JWTDecodeFailureException('Invalid token', 'Exception message'));
+        $this->jwtEncoder
+            ->method('decode')
+            ->willThrowException(new JWTDecodeFailureException('Invalid token', 'Exception message'))
+        ;
 
         $this->expectException(CustomUserMessageAuthenticationException::class);
         $this->expectExceptionMessage('Nieprawidłowy token');
@@ -68,8 +71,15 @@ class LoginAuthenticatorTest extends TestCase
     public function testAuthenticateReturnsPassportForValidToken(): void
     {
         $user = $this->createMock(UserInterface::class);
-        $this->jwtEncoder->method('decode')->willReturn(['username' => 'user@example.com']);
-        $this->userRepository->method('findOneBy')->with(['email' => 'user@example.com'])->willReturn($user);
+        $this->jwtEncoder
+            ->method('decode')
+            ->willReturn(['username' => 'user@example.com'])
+        ;
+        $this->userRepository
+            ->method('findOneBy')
+            ->with(['email' => 'user@example.com'])
+            ->willReturn($user)
+        ;
 
         $request = new Request([], [], [], ['access_token' => 'valid_token']);
         $passport = $this->authenticator->authenticate($request);

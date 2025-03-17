@@ -16,13 +16,24 @@ Wykorzystuje Docker do konteneryzacji oraz Minikube (Kubernetes) do zarządzania
 
 ## 3. Jak uruchomić projekt?
 
-### a) Klonowanie repozytorium
+### a) Dodaj domene do pliku `/etc/hosts`:
+
+```
+cd etc/
+sudo nano hosts
+```
+
+```
+127.0.0.1	task-management.test
+```
+
+### b) Klonowanie repozytorium
 
 ```
 git clone git@github.com:Jacqu82/task-management-app.git
 ```
 
-### b) Uruchomienie w Dockerze
+### c) Uruchomienie w Dockerze
 
 ```
 cd docker
@@ -30,7 +41,7 @@ docker-compose build
 docker-compose up
 ```
 
-### c) Instalacja Composer, migracji oraz JWT
+### d) Instalacja Composer, migracji oraz JWT
 
 #### Otwórz nowy terminal
 
@@ -48,7 +59,7 @@ bin/console lexik:jwt:generate-keypair
 bin/phpunit
 ```
 
-### d) Instalacja npm oraz uruchomienie aplikacji
+### e) Instalacja npm oraz uruchomienie aplikacji
 
 #### Otwórz nowy terminal
 
@@ -70,7 +81,7 @@ npx playwright install-deps
 npm run test:e2e
 ```
 
-### e) Otwórz w przeglądarce
+### f) Otwórz w przeglądarce
 
 ```
 http://task-management.test:8000/

@@ -32,7 +32,7 @@ docker-compose up
 
 ### c) Instalacja Composer, migracji oraz JWT
 
-Otwórz nowy terminal
+#### Otwórz nowy terminal
 
 ```
 cd docker
@@ -42,7 +42,7 @@ bin/console doctrine:migrations:migrate
 bin/console lexik:jwt:generate-keypair
 ```
 
-Testy PHPunit
+#### Testy PHPunit
 
 ```
 bin/phpunit
@@ -50,7 +50,7 @@ bin/phpunit
 
 ### d) Instalacja npm oraz uruchomienie aplikacji
 
-Otwórz nowy terminal
+#### Otwórz nowy terminal
 
 ```
 cd docker
@@ -59,13 +59,15 @@ npm install
 npm run dev
 ```
 
-Testy playwright
-Otwórz nowy terminal
+#### Testy playwright
+#### Otwórz nowy terminal
 
 ```
 cd docker
 docker exec -it task-management-node bash
-npm run playwright test
+npx playwright install
+npx playwright install-deps
+npm run test:e2e
 ```
 
 ### e) Otwórz w przeglądarce
@@ -85,8 +87,9 @@ http://task-management.test:8000/
 
 ## ℹ️ 5. Dodatkowe informacje
 
-🚀 W ramach tego projektu po raz pierwszy miałem styczność z React i Kubernetes, co było świetnym doświadczeniem.   
-Niektóre rozwiązania mogłyby być jeszcze zoptymalizowane, ale projekt spełnia wymagania i działa poprawnie.  
+🚀 W ramach tego projektu po raz pierwszy miałem realną okazję "pokodzić" w React.
+Kubernetes poznałem po raz pierwszy i napotkałem na problemy z kontenerami Node'a i Composer'a, których
+póki co nie potrafię rozwiązać. 
 
 ## 📩 6. Kontakt
 

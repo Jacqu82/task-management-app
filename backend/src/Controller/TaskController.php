@@ -29,7 +29,7 @@ class TaskController extends AbstractController
     ) {
     }
 
-    #[Route('/api/tasks', name: 'api_task_list', methods: ['GET'])]
+    #[Route('/api/tasks', name: 'api_task_list', methods: [Request::METHOD_GET])]
     public function list(): Response
     {
         $paginatedCollection = $this->paginationFactory->createCollection(
@@ -45,7 +45,7 @@ class TaskController extends AbstractController
         );
     }
 
-    #[Route('/api/tasks', name: 'api_task_create', methods: ['POST'])]
+    #[Route('/api/tasks', name: 'api_task_create', methods: [Request::METHOD_POST])]
     public function create(Request $request): Response
     {
         $taskDTO = $this->serializer->deserialize($request->getContent(), TaskDTO::class, 'json');
@@ -60,7 +60,7 @@ class TaskController extends AbstractController
         return new JsonResponse(['status' => 'success'], Response::HTTP_CREATED);
     }
 
-    #[Route('/api/tasks/{id}', name: 'api_task_show', methods: ['GET'])]
+    #[Route('/api/tasks/{id}', name: 'api_task_show', methods: [Request::METHOD_GET])]
     public function show(Task $task): JsonResponse
     {
         $this->denyAccessUnlessGranted('show', $task);
@@ -73,7 +73,7 @@ class TaskController extends AbstractController
         );
     }
 
-    #[Route('/api/tasks/{id}', name: 'api_task_update', methods: ['PUT'])]
+    #[Route('/api/tasks/{id}', name: 'api_task_update', methods: [Request::METHOD_PUT])]
     public function update(Task $task, Request $request): Response
     {
         $this->denyAccessUnlessGranted('update', $task);
@@ -90,7 +90,7 @@ class TaskController extends AbstractController
         return new JsonResponse(['status' => 'success'], Response::HTTP_OK);
     }
 
-    #[Route('/api/tasks/{id}', name: 'api_task_delete', methods: ['DELETE'])]
+    #[Route('/api/tasks/{id}', name: 'api_task_delete', methods: [Request::METHOD_DELETE])]
     public function delete(Task $task): JsonResponse
     {
         $this->denyAccessUnlessGranted('delete', $task);

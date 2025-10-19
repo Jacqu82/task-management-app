@@ -56,7 +56,7 @@ bin/console lexik:jwt:generate-keypair
 #### Testy PHPunit
 
 ```
-bin/phpunit
+vendor/bin/phpunit
 ```
 
 ### e) Instalacja npm oraz uruchomienie aplikacji

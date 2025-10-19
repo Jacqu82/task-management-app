@@ -42,7 +42,7 @@ jobs:
 
             -   name: Run PHPUnit tests
                 working-directory: backend
-                run: bin/phpunit
+                run: vendor/bin/phpunit
 
             -   name: Run PHPCS (PSR-12)
                 working-directory: backend

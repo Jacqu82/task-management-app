@@ -37,8 +37,8 @@ git clone git@github.com:Jacqu82/task-management-app.git
 
 ```
 cd docker
-docker-compose build
-docker-compose up
+docker compose build
+docker compose up
 ```
 
 ### d) Instalacja Composer, migracji oraz JWT
@@ -47,7 +47,7 @@ docker-compose up
 
 ```
 cd docker
-docker exec -it task-management-php-fpm bash
+docker exec -it task-management-php bash
 composer install
 bin/console doctrine:migrations:migrate
 bin/console lexik:jwt:generate-keypair
@@ -84,14 +84,14 @@ npm run test:e2e
 ### f) Otwórz w przeglądarce
 
 ```
-http://task-management.test:8000/
+http://task-management.test:8003/
 ```
 
 ## 📂 4. Struktura katalogów
 
 - /.github - Github actions
 - /backend` - Symfony API
-- /docker - Pliki konfiguracji dockera
+- /docker - Pliki konfiguracji docker-a
 - /frontend` - Next.js (React)
 - /k8s` - Pliki konfiguracji Kubernetes
 

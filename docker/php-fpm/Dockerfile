@@ -1,4 +1,4 @@
-ARG PHP_VERSION
+ARG PHP_VERSION=8.3
 FROM php:${PHP_VERSION}-fpm
 
 # https://stackoverflow.com/questions/51023312/docker-having-issues-installing-apt-utils

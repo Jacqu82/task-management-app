@@ -1,67 +1,62 @@
-version: '3.8'
-
 services:
     php-fpm:
-        container_name: ${COMPOSE_PROJECT_NAME}-php-fpm
+        container_name: ${COMPOSE_PROJECT_NAME}-php
+        image: ${COMPOSE_PROJECT_NAME}-php:latest
         build:
             context: .
             dockerfile: php-fpm/Dockerfile
             args:
-                - PHP_VERSION=${PHP_VERSION}
+                PHP_VERSION: ${PHP_VERSION}
         volumes:
             - ../backend:/web/backend
+        restart: unless-stopped
 
     nginx:
         container_name: ${COMPOSE_PROJECT_NAME}-nginx
+        image: ${COMPOSE_PROJECT_NAME}-nginx:latest
         build:
             context: .
             dockerfile: nginx/Dockerfile
             args:
-                - APP_HOST=${APP_HOST}
+                APP_HOST: ${APP_HOST}
         ports:
-            - "8000:80"
+            - "8003:80"
         depends_on:
             - php-fpm
-            - node
         volumes:
             - ../backend:/web/backend
+        restart: unless-stopped
 
     composer:
         container_name: ${COMPOSE_PROJECT_NAME}-composer
-        command: install
-        build:
-            context: .
-            dockerfile: composer/Dockerfile
+        image: ${COMPOSE_PROJECT_NAME}-php:latest
+        entrypoint: [ "composer" ]
+        command: [ "install" ]
         volumes:
             - ../backend:/web/backend
-        depends_on:
-            - php-fpm
 
     mysql:
         container_name: ${COMPOSE_PROJECT_NAME}-mysql
-        build:
-            context: .
-            dockerfile: mysql/Dockerfile
-            args:
-                - MYSQL_VERSION=${MYSQL_VERSION}
+        image: mysql:${MYSQL_VERSION}
         environment:
-            - MYSQL_DATABASE=${MYSQL_DATABASE}
-            - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-            - MYSQL_USER=${MYSQL_USER}
-            - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+            MYSQL_DATABASE: ${MYSQL_DATABASE}
+            MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+            MYSQL_USER: ${MYSQL_USER}
+            MYSQL_PASSWORD: ${MYSQL_PASSWORD}
         volumes:
             - ./data/mysql:/var/lib/mysql
         ports:
-            - "3307:3306"
+            - "3308:3306"
+        restart: unless-stopped
 
     node:
         container_name: ${COMPOSE_PROJECT_NAME}-node
+        image: ${COMPOSE_PROJECT_NAME}-node:latest
         build:
             context: .
             dockerfile: node/Dockerfile
             args:
-                - NODE_VERSION=${NODE_VERSION}
-        ports:
-            - "3000:3000"
+                NODE_VERSION: ${NODE_VERSION:-lts-alpine}
         volumes:
             - ../frontend:/web/frontend
+        restart: unless-stopped

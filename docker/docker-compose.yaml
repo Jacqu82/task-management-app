@@ -9,7 +9,6 @@ services:
                 PHP_VERSION: ${PHP_VERSION}
         volumes:
             - ../backend:/web/backend
-        restart: unless-stopped
 
     nginx:
         container_name: ${COMPOSE_PROJECT_NAME}-nginx
@@ -25,15 +24,6 @@ services:
             - php-fpm
         volumes:
             - ../backend:/web/backend
-        restart: unless-stopped
-
-    composer:
-        container_name: ${COMPOSE_PROJECT_NAME}-composer
-        image: ${COMPOSE_PROJECT_NAME}-php:latest
-        entrypoint: [ "composer" ]
-        command: [ "install" ]
-        volumes:
-            - ../backend:/web/backend
 
     mysql:
         container_name: ${COMPOSE_PROJECT_NAME}-mysql
@@ -44,10 +34,9 @@ services:
             MYSQL_USER: ${MYSQL_USER}
             MYSQL_PASSWORD: ${MYSQL_PASSWORD}
         volumes:
-            - ./data/mysql:/var/lib/mysql
+            - mysql_data:/var/lib/mysql
         ports:
             - "3308:3306"
-        restart: unless-stopped
 
     node:
         container_name: ${COMPOSE_PROJECT_NAME}-node
@@ -59,4 +48,6 @@ services:
                 NODE_VERSION: ${NODE_VERSION:-lts-alpine}
         volumes:
             - ../frontend:/web/frontend
-        restart: unless-stopped
+
+volumes:
+    mysql_data:

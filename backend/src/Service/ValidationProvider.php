@@ -13,9 +13,9 @@ readonly class ValidationProvider
     {
     }
 
-    public function getErrors(object $dto): array
+    public function getErrors(object $dto, array $groups = []): array
     {
-        $validationErrors = $this->validator->validate($dto);
+        $validationErrors = $this->validator->validate($dto, null, $groups);
         $errors = [];
 
         foreach ($validationErrors as $validationError) {

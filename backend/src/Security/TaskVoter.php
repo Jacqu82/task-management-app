@@ -13,12 +13,13 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 class TaskVoter extends Voter
 {
     private const string UPDATE = 'update';
+    private const string UPDATE_STATUS = 'update_status';
     private const string DELETE = 'delete';
     private const string SHOW = 'show';
 
     protected function supports(string $attribute, mixed $subject): bool
     {
-        if (!in_array($attribute, [self::UPDATE, self::DELETE, self::SHOW], true)) {
+        if (!in_array($attribute, [self::UPDATE, self::UPDATE_STATUS, self::DELETE, self::SHOW], true)) {
             return false;
         }
 
@@ -41,6 +42,7 @@ class TaskVoter extends Voter
 
         return match ($attribute) {
             self::UPDATE => $this->canUpdate($task, $user),
+            self::UPDATE_STATUS => $this->canUpdateStatus($task, $user),
             self::DELETE => $this->canDelete($task, $user),
             self::SHOW => $this->canShow($task, $user),
             default => throw new LogicException('This code should not be reached!')
@@ -51,6 +53,11 @@ class TaskVoter extends Voter
     {
         return $task->getUser() === $user;
     }
+	
+	private function canUpdateStatus(Task $task, User $user): bool
+	{
+		return $task->getUser() === $user;
+	}
 
     private function canDelete(Task $task, User $user): bool
     {

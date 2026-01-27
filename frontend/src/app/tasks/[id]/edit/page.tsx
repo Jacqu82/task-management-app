@@ -12,13 +12,19 @@ interface Task {
     status: string;
 }
 
+interface TaskStatusDto {
+    value: string;
+    label: string;
+}
+
 export default function EditTask() {
     const { id } = useParams();
     const [task, setTask] = useState<Task | null>(null);
     const [loading, setLoading] = useState(true);
     const [error] = useState("");
-    const [validationErrors, setErrors] = useState<{ title?: string }>({});
+    const [validationErrors, setErrors] = useState<{ title?: string, description?: string, status?: string }>({});
     const router = useRouter();
+    const [statuses, setStatuses] = useState<TaskStatusDto[]>([]);
 
     useEffect(() => {
         async function fetchTask() {
@@ -41,7 +47,16 @@ export default function EditTask() {
             }
         }
 
+        async function fetchStatuses() {
+            const response = await fetch('/api/task-statuses', {
+                credentials: 'include',
+            });
+            const data = await response.json();
+            setStatuses(data);
+        }
+
         fetchTask();
+        fetchStatuses();
     }, [id]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -128,6 +143,7 @@ export default function EditTask() {
                         onChange={handleChange}
                         className={styles.textarea}
                     />
+                    {validationErrors.description && <p className={styles.error}>{validationErrors.description}</p>}
                 </div>
                 <div className={styles.formGroup}>
                     <label className={styles.label} htmlFor="status">Status</label>
@@ -138,10 +154,13 @@ export default function EditTask() {
                         onChange={handleChange}
                         className={styles.select}
                     >
-                        <option value="pending">Oczekujące</option>
-                        <option value="in_progress">W trakcie</option>
-                        <option value="completed">Zakończone</option>
+                        {statuses.map(status => (
+                            <option key={status.value} value={status.value}>
+                                {status.label}
+                            </option>
+                        ))}
                     </select>
+                    {validationErrors.status && <p className={styles.error}>{validationErrors.status}</p>}
                 </div>
                 <button type="submit" className={styles.submitBtn}>Zapisz zmiany</button>
             </form>

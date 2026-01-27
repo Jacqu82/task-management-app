@@ -11,7 +11,7 @@ interface Task {
     id: number;
     title: string;
     description: string;
-    statusName: string;
+    status: string;
     createdAt: string;
 }
 
@@ -30,13 +30,36 @@ interface Links {
     prev?: string;
 }
 
+interface ValidationError {
+    status: number;
+    title: string;
+    detail: string;
+    source: {
+        pointer: string;
+    };
+}
+
 function TasksContent() {
     const [tasks, setTasks] = useState<Task[]>([]);
     const [meta, setMeta] = useState<Meta | null>(null);
     const [links, setLinks] = useState<Links | null>(null);
+    const [errors, setErrors] = useState<{ [key: number]: string }>({});
     const searchParams = useSearchParams();
     const router = useRouter();
     const currentPage = Number(searchParams.get("page")) || 1;
+    type TaskStatusDto = {
+        value: string;
+        label: string;
+    };
+    const [statuses, setStatuses] = useState<TaskStatusDto[]>([]);
+
+    const fetchStatuses = async () => {
+        const response = await fetch('/api/task-statuses', {
+            credentials: 'include',
+        });
+        const data = await response.json();
+        setStatuses(data);
+    };
 
     const fetchTasks = async (page: number) => {
         const response = await fetch(`/api/tasks?page=${page}`);
@@ -46,8 +69,42 @@ function TasksContent() {
         setLinks(data.links);
     };
 
+    const handleStatusChange = async (id: number, status: Task['status']) => {
+        try {
+            const response = await fetch(`/api/tasks/${id}/status`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify({ status }),
+            });
+
+            if (!response.ok) {
+                const data = await response.json();
+                const statusError = (data.errors as ValidationError[] | undefined)?.find(
+                    e => e.source?.pointer === "/data/attributes/status"
+                );
+                setErrors(prev => ({ ...prev, [id]: statusError?.detail || "Nieznany błąd" }));
+                return;
+            }
+
+            setTasks(prev =>
+                prev.map(task => task.id === id ? { ...task, status } : task)
+            );
+            setErrors(prev => {
+                const copy = { ...prev };
+                delete copy[id];
+                return copy;
+            });
+
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+
     useEffect(() => {
         fetchTasks(currentPage);
+        fetchStatuses();
     }, [currentPage]);
 
     const changePage = (page: number) => {
@@ -75,8 +132,23 @@ function TasksContent() {
                                 <Link href={`/tasks/${task.id}/edit`}>{task.title}</Link>
                             </span>
                             <span className={styles.taskDescription}>{task.description}</span>
-                            <span className={styles.taskStatus}>{task.statusName}</span>
-                            <span className={styles.taskDate}>{format(new Date(task.createdAt), 'HH:mm dd-MM-yyyy')}</span>
+                            <span className={styles.taskStatus}>
+                                <select
+                                    value={task.status}
+                                    onChange={e => handleStatusChange(task.id, e.target.value)}
+                                    className={styles.select}
+                                >
+                                    {statuses.map(status => (
+                                        <option key={status.value} value={status.value}>
+                                            {status.label}
+                                        </option>
+                                    ))}
+                                </select>
+                                {errors[task.id] && (
+                                    <p className={styles.error}>{errors[task.id]}</p>
+                                )}
+                            </span>
+                            <span className={styles.taskDate}>{format(new Date(task.createdAt), 'dd.MM.yyyy HH:mm')}</span>
                             <div className={styles.taskActions}>
                                 <Link href={`/tasks/${task.id}/edit`} className={styles.iconButton}>
                                     <Edit size={20} />

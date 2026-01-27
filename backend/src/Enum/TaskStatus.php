@@ -4,18 +4,16 @@ namespace App\Enum;
 
 enum TaskStatus: string
 {
-    case pending = 'Oczekujące';
-    case in_progress = 'W trakcie';
-    case completed = 'Zakończone';
-
-    public static function getValueFromName(string $name): ?string
-    {
-        foreach (self::cases() as $case) {
-            if ($case->name === $name) {
-                return $case->value;
-            }
-        }
-
-        return null;
-    }
+	case Pending = 'pending';
+	case InProgress = 'in_progress';
+	case Completed = 'completed';
+	
+	public function label(): string
+	{
+		return match ($this) {
+			self::Pending => 'Oczekujące',
+			self::InProgress => 'W trakcie',
+			self::Completed => 'Zakończone',
+		};
+	}
 }

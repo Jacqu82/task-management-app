@@ -10,7 +10,7 @@ export default function NewTask() {
         title: "",
         description: "",
     });
-    const [validationErrors, setErrors] = useState<{ title?: string }>({});
+    const [validationErrors, setErrors] = useState<{ title?: string, description?: string }>({});
     const router = useRouter();
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -92,6 +92,7 @@ export default function NewTask() {
                         onChange={handleChange}
                         className={styles.textarea}
                     />
+                    {validationErrors.description && <p className={styles.error}>{validationErrors.description}</p>}
                 </div>
                 <button type="submit" className={styles.submitBtn}>Zapisz</button>
             </form>

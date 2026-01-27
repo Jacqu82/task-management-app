@@ -2,6 +2,7 @@
 
 import {useState} from "react";
 import styles from "./register.module.css";
+import { useRouter } from 'next/navigation';
 
 export default function Register() {
     const [formData, setFormData] = useState({
@@ -11,6 +12,7 @@ export default function Register() {
     const [validationErrors, setErrors] = useState<{ email?: string; password?: string }>({});
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const router = useRouter();
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -59,16 +61,19 @@ export default function Register() {
                     "Content-Type": "application/json",
                     "CSRF-TOKEN": await getCsrfToken("register"),
                 },
+                credentials: 'include',
                 body: JSON.stringify(formData),
             });
 
             const responseData = await response.json();
 
             if (response.ok) {
-                setFormData({ email: "", password: "" });
-                setErrors({});
-                setSuccessMessage(responseData.message);
-                setErrorMessage(null);
+                await fetch('/api/me', {
+                    method: 'GET',
+                    credentials: 'include',
+                });
+
+                router.push('/');
             } else {
                 setErrors(parseErrors(responseData.errors || []));
                 setSuccessMessage(null);

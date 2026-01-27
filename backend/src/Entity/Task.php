@@ -42,7 +42,7 @@ class Task
 
     public function __construct()
     {
-        $this->status = TaskStatus::pending->name;
+        $this->status = TaskStatus::Pending->value;
         $this->createdAt = new DateTime();
     }
 
@@ -89,12 +89,6 @@ class Task
     public function setStatus(string $status): void
     {
         $this->status = $status;
-    }
-
-    #[Groups('api')]
-    public function getStatusName(): string
-    {
-        return TaskStatus::getValueFromName($this->status);
     }
 
     #[Groups('api')]

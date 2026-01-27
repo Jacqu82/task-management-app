@@ -7,6 +7,7 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Service\CookieProvider;
+use App\Service\JwtAuthService;
 use Exception;
 use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -26,6 +27,7 @@ class SecurityController extends AbstractController
         private readonly JWTEncoderInterface $jwtEncoder,
         private readonly CookieProvider $cookieProvider,
         private readonly CsrfTokenManagerInterface $csrfTokenManager,
+        private readonly JwtAuthService $jwtAuthService,
     ) {
     }
 
@@ -50,27 +52,14 @@ class SecurityController extends AbstractController
         if (!$isValid) {
             return new JsonResponse(['error' => 'Niepoprawny login lub hasło'], Response::HTTP_BAD_REQUEST);
         }
-
-        $accessToken = $this->jwtEncoder->encode([
-            'username' => $user->getEmail(),
-            'exp' => time() + 3600,
-            'type' => 'access'
-        ]);
-
-        $refreshToken = $this->jwtEncoder->encode([
-            'username' => $user->getEmail(),
-            'exp' => time() + 3600 * 24 * 30,
-            'type' => 'refresh'
-        ]);
-
-        $response = new JsonResponse(['status' => 'success'], Response::HTTP_OK);
-        $response->headers->setCookie($this->cookieProvider->getAccessToken($accessToken));
-        $response->headers->setCookie($this->cookieProvider->getRefreshToken($refreshToken));
-
-        return $response;
+	    
+	    return $this->jwtAuthService->authenticate(
+			$user,
+			new JsonResponse(['status' => 'success'], Response::HTTP_OK)
+		);
     }
 
-    #[Route('/api/me', name: 'api_me', methods: [Request::METHOD_POST])]
+    #[Route('/api/me', name: 'api_me', methods: [Request::METHOD_GET])]
     public function getAuthenticatedUser(): JsonResponse
     {
         /** @var User $user */

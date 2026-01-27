@@ -75,6 +75,21 @@
     justify-content: center;
 }
 
+.taskStatus select {
+    width: 150px;
+    padding: 6px 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 0.9rem;
+    background-color: white;
+    appearance: none;
+    cursor: pointer;
+}
+
+.taskStatus select:focus {
+    outline: 2px solid #0070f3;
+}
+
 .iconButton {
     background: none;
     border: none;
@@ -122,6 +137,11 @@
     font-weight: bold;
 }
 
+.error {
+    color: red;
+    font-size: 0.9rem;
+    margin-top: 5px;
+}
 
 @media (max-width: 768px) {
     .taskHeader, .taskRow {

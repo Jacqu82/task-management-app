@@ -1,7 +1,7 @@
 export async function checkAuth() {
     try {
         let response = await fetch(`/api/me`, {
-            method: 'POST',
+            method: 'GET',
             credentials: 'include',
         });
 
@@ -13,7 +13,7 @@ export async function checkAuth() {
             const refreshed = await refreshToken();
             if (refreshed) {
                 response = await fetch(`/api/me`, {
-                    method: 'POST',
+                    method: 'GET',
                     credentials: 'include',
                 });
 

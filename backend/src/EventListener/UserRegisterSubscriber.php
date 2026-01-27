@@ -25,8 +25,8 @@ readonly class UserRegisterSubscriber implements EventSubscriberInterface
         $user->setEmail($userDTO->email);
         $user->setPassword($this->userPasswordHasher->hashPassword($user, $userDTO->password));
         $this->userRepository->save($user);
-	    
-	    $event->setUser($user);
+        
+        $event->setUser($user);
     }
 
     public static function getSubscribedEvents(): array

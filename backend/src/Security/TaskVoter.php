@@ -53,11 +53,11 @@ class TaskVoter extends Voter
     {
         return $task->getUser() === $user;
     }
-	
-	private function canUpdateStatus(Task $task, User $user): bool
-	{
-		return $task->getUser() === $user;
-	}
+    
+    private function canUpdateStatus(Task $task, User $user): bool
+    {
+        return $task->getUser() === $user;
+    }
 
     private function canDelete(Task $task, User $user): bool
     {

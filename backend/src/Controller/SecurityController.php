@@ -52,17 +52,19 @@ class SecurityController extends AbstractController
         if (!$isValid) {
             return new JsonResponse(['error' => 'Niepoprawny login lub hasło'], Response::HTTP_BAD_REQUEST);
         }
-	    
-	    return $this->jwtAuthService->authenticate(
-			$user,
-			new JsonResponse(['status' => 'success'], Response::HTTP_OK)
-		);
+        
+        return $this->jwtAuthService->authenticate(
+            $user,
+            new JsonResponse(['status' => 'success'], Response::HTTP_OK)
+        );
     }
 
     #[Route('/api/me', name: 'api_me', methods: [Request::METHOD_GET])]
     public function getAuthenticatedUser(): JsonResponse
     {
-        /** @var User $user */
+        /**
+ * @var User $user 
+*/
         $user = $this->getUser();
 
         if (null === $user) {
@@ -91,11 +93,13 @@ class SecurityController extends AbstractController
             return new JsonResponse(['message' => 'Nieprawidłowy refresh token'], Response::HTTP_UNAUTHORIZED);
         }
 
-        $newAccessToken = $this->jwtEncoder->encode([
+        $newAccessToken = $this->jwtEncoder->encode(
+            [
             'username' => $decoded['username'],
             'exp' => time() + 3600,
             'type' => 'access'
-        ]);
+            ]
+        );
 
         $response = new JsonResponse(['message' => 'Token odświeżony'], Response::HTTP_OK);
         $response->headers->setCookie($this->cookieProvider->getAccessToken($newAccessToken));

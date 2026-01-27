@@ -45,17 +45,17 @@ class UserController extends AbstractController
             return new JsonResponse(['errors' => $validationErrors], Response::HTTP_BAD_REQUEST);
         }
 
-		$userRegisterEvent = new UserRegisterEvent($userDTO);
+        $userRegisterEvent = new UserRegisterEvent($userDTO);
         $this->eventDispatcher->dispatch($userRegisterEvent);
-	    $user = $userRegisterEvent->getUser();
-		
-		if (null === $user) {
-			return new JsonResponse(['error' => 'Wystąpił błąd podczas rejestracji'], Response::HTTP_INTERNAL_SERVER_ERROR);
-		}
-	    
-	    return $this->jwtAuthService->authenticate(
-		    $user,
-		    new JsonResponse(['message' => 'Rejestracja przebiegła pomyślnie'], Response::HTTP_CREATED)
-	    );
+        $user = $userRegisterEvent->getUser();
+        
+        if (null === $user) {
+            return new JsonResponse(['error' => 'Wystąpił błąd podczas rejestracji'], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+        
+        return $this->jwtAuthService->authenticate(
+            $user,
+            new JsonResponse(['message' => 'Rejestracja przebiegła pomyślnie'], Response::HTTP_CREATED)
+        );
     }
 }

@@ -100,37 +100,41 @@ class TaskController extends AbstractController
 
         return new JsonResponse([], Response::HTTP_NO_CONTENT);
     }
-	
-	#[Route('/api/tasks/{id}/status', name: 'api_task_change_status', methods: [Request::METHOD_PATCH])]
-	public function changeStatus(Task $task, Request $request): JsonResponse
-	{
-		$this->denyAccessUnlessGranted('update_status', $task);
-		
-		$taskDTO = $this->serializer->deserialize($request->getContent(), TaskDTO::class, 'json');
-		$validationMessages = $this->validationProvider->getErrors($taskDTO, ['status_only']);
-		
-		if (!empty($validationMessages)) {
-			return new JsonResponse(['errors' => $validationMessages], Response::HTTP_BAD_REQUEST);
-		}
-		
-		$task->setStatus($taskDTO->status);
-		$this->taskRepository->save($task);
+    
+    #[Route('/api/tasks/{id}/status', name: 'api_task_change_status', methods: [Request::METHOD_PATCH])]
+    public function changeStatus(Task $task, Request $request): JsonResponse
+    {
+        $this->denyAccessUnlessGranted('update_status', $task);
+        
+        $taskDTO = $this->serializer->deserialize($request->getContent(), TaskDTO::class, 'json');
+        $validationMessages = $this->validationProvider->getErrors($taskDTO, ['status_only']);
+        
+        if (!empty($validationMessages)) {
+            return new JsonResponse(['errors' => $validationMessages], Response::HTTP_BAD_REQUEST);
+        }
+        
+        $task->setStatus($taskDTO->status);
+        $this->taskRepository->save($task);
 
-		return new JsonResponse([
-			'id' => $task->getId(),
-			'status' => $task->getStatus(),
-		]);
-	}
-	
-	#[Route('/api/task-statuses', name: 'api_task_statuses', methods: [Request::METHOD_GET])]
-	public function statuses(): JsonResponse
-	{
-		return new JsonResponse(array_map(
-			static fn(TaskStatus $status) => [
-				'value' => $status->value,
-				'label' => $status->label(),
-			],
-			TaskStatus::cases()
-		));
-	}
+        return new JsonResponse(
+            [
+            'id' => $task->getId(),
+            'status' => $task->getStatus(),
+            ]
+        );
+    }
+    
+    #[Route('/api/task-statuses', name: 'api_task_statuses', methods: [Request::METHOD_GET])]
+    public function statuses(): JsonResponse
+    {
+        return new JsonResponse(
+            array_map(
+                static fn(TaskStatus $status) => [
+                'value' => $status->value,
+                'label' => $status->label(),
+                ],
+                TaskStatus::cases()
+            )
+        );
+    }
 }

@@ -63,8 +63,8 @@ class SecurityController extends AbstractController
     public function getAuthenticatedUser(): JsonResponse
     {
         /**
- * @var User $user 
-*/
+        * @var User $user
+        */
         $user = $this->getUser();
 
         if (null === $user) {

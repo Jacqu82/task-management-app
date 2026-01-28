@@ -27,8 +27,7 @@ class UniqueEmailValidator extends ConstraintValidator
             $this->context
                 ->buildViolation($constraint->message)
                 ->setParameter('{{ value }}', $value)
-                ->addViolation()
-            ;
+                ->addViolation();
         }
     }
 }

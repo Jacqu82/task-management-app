@@ -15,7 +15,7 @@ readonly class JwtAuthService
         private CookieProvider $cookieProvider,
     ) {
     }
-    
+
     public function authenticate(User $user, JsonResponse $response): JsonResponse
     {
         $accessToken = $this->jwtEncoder->encode(
@@ -25,7 +25,7 @@ readonly class JwtAuthService
             'type' => 'access'
             ]
         );
-        
+
         $refreshToken = $this->jwtEncoder->encode(
             [
             'username' => $user->getEmail(),
@@ -33,10 +33,10 @@ readonly class JwtAuthService
             'type' => 'refresh'
             ]
         );
-        
+
         $response->headers->setCookie($this->cookieProvider->getAccessToken($accessToken));
         $response->headers->setCookie($this->cookieProvider->getRefreshToken($refreshToken));
-        
+
         return $response;
     }
 }

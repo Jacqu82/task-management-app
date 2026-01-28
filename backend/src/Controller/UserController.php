@@ -48,11 +48,11 @@ class UserController extends AbstractController
         $userRegisterEvent = new UserRegisterEvent($userDTO);
         $this->eventDispatcher->dispatch($userRegisterEvent);
         $user = $userRegisterEvent->getUser();
-        
+
         if (null === $user) {
             return new JsonResponse(['error' => 'Wystąpił błąd podczas rejestracji'], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-        
+
         return $this->jwtAuthService->authenticate(
             $user,
             new JsonResponse(['message' => 'Rejestracja przebiegła pomyślnie'], Response::HTTP_CREATED)

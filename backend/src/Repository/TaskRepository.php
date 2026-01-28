@@ -22,7 +22,6 @@ class TaskRepository extends AbstractRepository
             ->andWhere('t.user = :user')
             ->setParameter('user', $user)
             ->orderBy('t.id', 'DESC')
-            ->getQuery()
-        ;
+            ->getQuery();
     }
 }

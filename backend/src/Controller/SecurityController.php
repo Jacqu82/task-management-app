@@ -52,7 +52,7 @@ class SecurityController extends AbstractController
         if (!$isValid) {
             return new JsonResponse(['error' => 'Niepoprawny login lub hasło'], Response::HTTP_BAD_REQUEST);
         }
-        
+
         return $this->jwtAuthService->authenticate(
             $user,
             new JsonResponse(['status' => 'success'], Response::HTTP_OK)

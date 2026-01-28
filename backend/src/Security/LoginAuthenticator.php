@@ -55,11 +55,9 @@ class LoginAuthenticator extends AbstractAuthenticator implements Authentication
         $user = $this->userRepository->findOneBy(['email' => $data['username']]);
 
         return new SelfValidatingPassport(
-            new UserBadge(
-                $apiToken, function () use ($user): UserInterface {
-                    return $user;
-                }
-            ),
+            new UserBadge($apiToken, function () use ($user): UserInterface {
+                return $user;
+            }),
             []
         );
     }

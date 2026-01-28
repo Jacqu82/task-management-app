@@ -28,9 +28,7 @@ class PaginationFactory
 
     public function createCollection(Query $collection, string $route, array $routeParams = []): PaginatedCollection
     {
-        /**
- * @var Request $request 
-*/
+        /** @var Request $request */
         $request = $this->request->getCurrentRequest();
         $page = (int) $request->query->get('page', 1);
         $pagerfanta = new Pagerfanta(new QueryAdapter($collection));

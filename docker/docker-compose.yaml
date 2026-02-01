@@ -48,6 +48,8 @@ services:
                 NODE_VERSION: ${NODE_VERSION:-lts-alpine}
         volumes:
             - ../frontend:/web/frontend
+        depends_on:
+            - php-fpm
 
 volumes:
     mysql_data:

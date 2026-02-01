@@ -3,4 +3,9 @@ FROM node:${NODE_VERSION}
 
 WORKDIR /web/frontend
 
-CMD ["tail", "-f", "/dev/null"]
+# Copy entrypoint
+COPY node/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+# Default entrypoint
+ENTRYPOINT ["/entrypoint.sh"]

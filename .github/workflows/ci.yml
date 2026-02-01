@@ -17,10 +17,13 @@ jobs:
               run: docker compose up -d --build
 
             - name: Run PHPUnit tests
+              working-directory: docker
               run: docker compose exec -T php-fpm vendor/bin/phpunit
 
             - name: Run PHPCS (PSR-12)
+              working-directory: docker
               run: docker compose exec -T php-fpm vendor/bin/phpcs -n -s -p --standard=PSR12 src/
 
             - name: Run PHPStan (level 2)
+              working-directory: docker
               run: docker compose exec -T php-fpm vendor/bin/phpstan analyse -l 2 --memory-limit=512M --error-format=raw src/

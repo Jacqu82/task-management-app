@@ -7,47 +7,62 @@ on:
 jobs:
     build:
         runs-on: ubuntu-latest
+        services:
+            mysql:
+                image: mysql:8
+                env:
+                    MYSQL_ROOT_PASSWORD: root
+                    MYSQL_DATABASE: task_management
+                ports:
+                    - 3306:3306
+                options: >-
+                    --health-cmd="mysqladmin ping --silent"
+                    --health-interval=10s
+                    --health-timeout=5s
+                    --health-retries=5
+
         steps:
-            -   name: Checkout repo
-                uses: actions/checkout@v4
+            # Checkout repo
+            - name: Checkout repository
+              uses: actions/checkout@v4
 
-            -   name: Set up PHP
-                uses: shivammathur/setup-php@v2
-                with:
-                    php-version: '8.3'
-                    extensions: intl, zip, gd
-                    tools: composer
-                    coverage: none
+            # ---- Backend ----
+            - name: Build backend Docker image
+              run: docker build -f docker/php-fpm/Dockerfile -t task-management-php:latest .
 
-            -   name: Install dependencies
-                working-directory: backend
-                run: composer install --no-progress --prefer-dist
+            - name: Start backend container
+              run: |
+                  docker run -d \
+                    --name task-management-php \
+                    --env-file backend/.env \
+                    --network host \
+                    task-management-php:latest
 
-            -   name: Set up Node.js
-                uses: actions/setup-node@v3
-                with:
-                    node-version: '22'
+            - name: Wait for database
+              run: |
+                  until docker exec task-management-php php bin/console doctrine:query:sql "SELECT 1" >/dev/null 2>&1; do
+                    sleep 1
+                  done
 
-            -   name: Install Node dependencies
-                working-directory: frontend
-                run: npm install
+            - name: Run migrations
+              run: docker exec task-management-php php bin/console doctrine:migrations:migrate --no-interaction
 
-            -   name: Install Playwright browsers
-                working-directory: frontend
-                run: npx playwright install --with-deps
+            - name: Run PHPUnit tests
+              run: docker exec task-management-php vendor/bin/phpunit
 
-            -   name: Build frontend
-                working-directory: frontend
-                run: npm run build
+            - name: Run PHPCS (PSR-12)
+              run: docker exec task-management-php vendor/bin/phpcs -n -s -p --standard=PSR12 src/
 
-            -   name: Run PHPUnit tests
-                working-directory: backend
-                run: vendor/bin/phpunit
+            - name: Run PHPStan (level 2)
+              run: docker exec task-management-php vendor/bin/phpstan analyse -l 2 --memory-limit=512M --error-format=raw src/
 
-            -   name: Run PHPCS (PSR-12)
-                working-directory: backend
-                run: vendor/bin/phpcs -n -s -p --standard=PSR12 src/
+            # ---- Frontend ----
+            - name: Build frontend Docker image
+              run: docker build -f docker/node/Dockerfile -t task-management-node:latest .
 
-            -   name: Run PHPStan (level 2)
-                working-directory: backend
-                run: vendor/bin/phpstan analyse -l 2 --memory-limit=512M --error-format=raw src/
+            - name: Install frontend dependencies & build
+              run: |
+                  docker run --rm \
+                    -v ${{ github.workspace }}/frontend:/web/frontend \
+                    task-management-node:latest \
+                    sh -c "npm install && npm run dev"

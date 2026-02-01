@@ -33,26 +33,6 @@ sudo nano hosts
 git clone git@github.com:Jacqu82/task-management-app.git
 ```
 
-### c) Uruchomienie w Dockerze
-
-```
-cd docker
-docker compose build
-docker compose up
-```
-
-### d) Instalacja Composer, migracji oraz JWT
-
-#### Otwórz nowy terminal
-
-```
-cd docker
-docker exec -it task-management-php bash
-composer install
-bin/console doctrine:migrations:migrate
-bin/console lexik:jwt:generate-keypair
-```
-
 #### Testy PHPunit
 
 ```

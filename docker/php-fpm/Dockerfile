@@ -23,6 +23,11 @@ WORKDIR /web/backend
 # composer cache directory
 RUN mkdir -p /.composer && chown -R 1000 /.composer
 
+COPY php-fpm/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]
+
 CMD ["php-fpm"]
 
 EXPOSE 9000

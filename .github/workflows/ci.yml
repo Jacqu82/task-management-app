@@ -23,6 +23,14 @@ jobs:
                 working-directory: docker
                 run: docker compose exec -T php-fpm sh -c "composer install --no-interaction --prefer-dist"
 
+            -   name: Wait for database
+                working-directory: docker
+                run: |
+                    until docker compose exec -T php-fpm php -r "new PDO(getenv('DATABASE_URL')); echo 'DB ready';"; do
+                      echo "⏳ Waiting for database..."
+                      sleep 2
+                    done
+
             -   name: Run database migrations
                 working-directory: docker
                 run: docker compose exec -T php-fpm php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration

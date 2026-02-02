@@ -40,4 +40,4 @@
                                         # 7️⃣ Build frontend
                                         - name: Build frontend
                                           working-directory: docker
-                                          run: docker compose run --rm \ --entrypoint sh \ node -c "cd /web/frontend && npm ci && npm run build"
+                                          run: docker compose run --rm --entrypoint sh node -c "cd /web/frontend && npm ci && npm run build"

@@ -14,10 +14,18 @@ jobs:
 
             -   name: Start all containers
                 working-directory: docker
-                run: docker compose up -d --build
+                run: docker compose build --pull --parallel
 
             -   name: Wait for containers
                 run: sleep 10
+
+            -   name: Cache Composer
+                uses: actions/cache@v3
+                with:
+                    path: vendor
+                    key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+                    restore-keys: |
+                        ${{ runner.os }}-composer-
 
             -   name: Run composer
                 working-directory: docker
@@ -26,9 +34,16 @@ jobs:
             -   name: Wait for database
                 working-directory: docker
                 run: |
+                    TIMEOUT=30
+                    ELAPSED=0
                     until docker compose exec -T php-fpm php bin/console doctrine:query:sql "SELECT 1" > /dev/null 2>&1; do
+                      if [ $ELAPSED -ge $TIMEOUT ]; then
+                        echo "❌ Database not ready after $TIMEOUT seconds"
+                        exit 1
+                      fi
                       echo "⏳ Waiting for database..."
                       sleep 2
+                      ELAPSED=$((ELAPSED+2))
                     done
 
             -   name: Run database migrations
@@ -47,9 +62,17 @@ jobs:
                 working-directory: docker
                 run: docker compose exec -T php-fpm vendor/bin/phpstan analyse -l 2 --memory-limit=512M --error-format=raw src/
 
+            -   name: Cache Node modules
+                uses: actions/cache@v3
+                with:
+                    path: /web/frontend/node_modules
+                    key: ${{ runner.os }}-node-${{ hashFiles('frontend/package-lock.json') }}
+                    restore-keys: |
+                        ${{ runner.os }}-node-
+
             -   name: Build frontend
                 working-directory: docker
                 run: |
                     docker compose run --rm \
                       --entrypoint sh \
-                      node -c "cd /web/frontend && rm -rf node_modules && npm ci && npm run build"
+                      node -c "cd /web/frontend && npm ci --prefer-offline --no-audit && npm run build"

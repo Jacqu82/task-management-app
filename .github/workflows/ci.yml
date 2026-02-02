@@ -1,44 +1,47 @@
-                            name: CI
+name: CI
 
-                            on:
-                                push:
-                                    branches:
-                                        - '**'
-                            jobs:
-                                build:
-                                    runs-on: ubuntu-latest
+on:
+    push:
+        branches:
+            - '**'
+jobs:
+    build:
+        runs-on: ubuntu-latest
 
-                                    steps:
-                                        -   name: Checkout repository
-                                            uses: actions/checkout@v4
+        steps:
+            -   name: Checkout repository
+                uses: actions/checkout@v4
 
-                                        -   name: Start all containers
-                                            working-directory: docker
-                                            run: docker compose up -d --build
+            -   name: Start all containers
+                working-directory: docker
+                run: docker compose up -d --build
 
-                                        -   name: Run composer
-                                            working-directory: docker
-                                            run: docker compose exec -T php-fpm sh -c "composer install --no-interaction --prefer-dist"
+            -   name: Wait for containers
+                run: sleep 10
 
-                                        -   name: Run database migrations
-                                            working-directory: docker
-                                            run: docker compose exec -T php-fpm php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration
+            -   name: Run composer
+                working-directory: docker
+                run: docker compose exec -T php-fpm sh -c "composer install --no-interaction --prefer-dist"
 
-                                        -   name: Run PHPUnit
-                                            working-directory: docker
-                                            run: docker compose exec -T php-fpm vendor/bin/phpunit
+            -   name: Run database migrations
+                working-directory: docker
+                run: docker compose exec -T php-fpm php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration
 
-                                        -   name: Run PHPCS (PSR-12)
-                                            working-directory: docker
-                                            run: docker compose exec -T php-fpm vendor/bin/phpcs -n -s -p --standard=PSR12 src/
+            -   name: Run PHPUnit
+                working-directory: docker
+                run: docker compose exec -T php-fpm vendor/bin/phpunit
 
-                                        -   name: Run PHPStan
-                                            working-directory: docker
-                                            run: docker compose exec -T php-fpm vendor/bin/phpstan analyse -l 2 --memory-limit=512M --error-format=raw src/
+            -   name: Run PHPCS (PSR-12)
+                working-directory: docker
+                run: docker compose exec -T php-fpm vendor/bin/phpcs -n -s -p --standard=PSR12 src/
 
-                                        -   name: Build frontend
-                                            working-directory: docker
-                                            run: |
-                                                docker compose run --rm \
-                                                  --entrypoint sh \
-                                                  node -c "cd /web/frontend && rm -rf node_modules && npm ci && npm run build"
+            -   name: Run PHPStan
+                working-directory: docker
+                run: docker compose exec -T php-fpm vendor/bin/phpstan analyse -l 2 --memory-limit=512M --error-format=raw src/
+
+            -   name: Build frontend
+                working-directory: docker
+                run: |
+                    docker compose run --rm \
+                      --entrypoint sh \
+                      node -c "cd /web/frontend && rm -rf node_modules && npm ci && npm run build"

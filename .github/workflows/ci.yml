@@ -1,43 +1,43 @@
-name: CI
+                            name: CI
 
-on:
-    push:
-        branches:
-            - '**'
-jobs:
-    build:
-        runs-on: ubuntu-latest
+                            on:
+                                push:
+                                    branches:
+                                        - '**'
+                            jobs:
+                                build:
+                                    runs-on: ubuntu-latest
 
-        steps:
-            # 1️⃣ Checkout repo
-            - name: Checkout repository
-              uses: actions/checkout@v4
+                                    steps:
+                                        # 1️⃣ Checkout repo
+                                        - name: Checkout repository
+                                          uses: actions/checkout@v4
 
-            # 2️⃣ Start all containers
-            - name: Start all containers
-              working-directory: docker
-              run: docker compose up -d --build
+                                        # 2️⃣ Start all containers
+                                        - name: Start all containers
+                                          working-directory: docker
+                                          run: docker compose up -d --build
 
-            # 3️⃣ Wait a few seconds for containers to be ready
-            - name: Wait for containers
-              run: sleep 10
+                                        # 3️⃣ Wait a few seconds for containers to be ready
+                                        - name: Wait for containers
+                                          run: sleep 10
 
-            # 4️⃣ Run backend tests (PHPUnit) in a fresh container
-            - name: Run PHPUnit tests
-              working-directory: docker
-              run: docker compose run --rm php-fpm sh -c "composer install --no-interaction --prefer-dist && vendor/bin/phpunit"
+                                        # 4️⃣ Run backend tests (PHPUnit) in a fresh container
+                                        - name: Run PHPUnit tests
+                                          working-directory: docker
+                                          run: docker compose run --rm php-fpm sh -c "composer install --no-interaction --prefer-dist && vendor/bin/phpunit"
 
-            # 5️⃣ Run PHPCS (PSR-12)
-            - name: Run PHPCS (PSR-12)
-              working-directory: docker
-              run: docker compose run --rm php-fpm sh -c "composer install --no-interaction --prefer-dist && vendor/bin/phpcs -n -s -p --standard=PSR12 src/"
+                                        # 5️⃣ Run PHPCS (PSR-12)
+                                        - name: Run PHPCS (PSR-12)
+                                          working-directory: docker
+                                          run: docker compose run --rm php-fpm sh -c "composer install --no-interaction --prefer-dist && vendor/bin/phpcs -n -s -p --standard=PSR12 src/"
 
-            # 6️⃣ Run PHPStan (level 2)
-            - name: Run PHPStan (level 2)
-              working-directory: docker
-              run: docker compose run --rm php-fpm sh -c "composer install --no-interaction --prefer-dist && vendor/bin/phpstan analyse -l 2 --memory-limit=512M --error-format=raw src/"
+                                        # 6️⃣ Run PHPStan (level 2)
+                                        - name: Run PHPStan (level 2)
+                                          working-directory: docker
+                                          run: docker compose run --rm php-fpm sh -c "composer install --no-interaction --prefer-dist && vendor/bin/phpstan analyse -l 2 --memory-limit=512M --error-format=raw src/"
 
-            # 7️⃣ Build frontend
-            - name: Build frontend
-              working-directory: docker
-              run: docker compose run --rm node sh -c "npm install && npm run build"
+                                        # 7️⃣ Build frontend
+                                        - name: Build frontend
+                                          working-directory: docker
+                                          run: docker compose run --rm \ --entrypoint sh \ node -c "cd /web/frontend && npm ci && npm run build"

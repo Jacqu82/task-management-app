@@ -14,7 +14,7 @@ jobs:
 
             -   name: Start all containers
                 working-directory: docker
-                run: docker compose build --pull --parallel
+                run: docker compose up -d --build
 
             -   name: Wait for containers
                 run: sleep 10

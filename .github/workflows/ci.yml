@@ -9,39 +9,33 @@
                                     runs-on: ubuntu-latest
 
                                     steps:
-                                        # 1️⃣ Checkout repo
                                         -   name: Checkout repository
                                             uses: actions/checkout@v4
 
-                                        # 2️⃣ Start all containers
                                         -   name: Start all containers
                                             working-directory: docker
                                             run: docker compose up -d --build
 
-                                        # 3️⃣ Wait a few seconds for containers to be ready
-                                        -   name: Wait for containers
-                                            run: sleep 10
-
-                                        -   name: Backend init (composer + migrations)
+                                        -   name: Run composer
                                             working-directory: docker
                                             run: docker compose exec -T php-fpm sh -c "composer install --no-interaction --prefer-dist"
 
-                                        # 4️⃣ Run backend tests (PHPUnit) in a fresh container
+                                        -   name: Run database migrations
+                                            working-directory: docker
+                                            run: docker compose exec -T php-fpm php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration
+
                                         -   name: Run PHPUnit
                                             working-directory: docker
                                             run: docker compose exec -T php-fpm vendor/bin/phpunit
 
-                                        # 5️⃣ Run PHPCS (PSR-12)
                                         -   name: Run PHPCS (PSR-12)
                                             working-directory: docker
                                             run: docker compose exec -T php-fpm vendor/bin/phpcs -n -s -p --standard=PSR12 src/
 
-                                        # 6️⃣ Run PHPStan (level 2)
                                         -   name: Run PHPStan
                                             working-directory: docker
                                             run: docker compose exec -T php-fpm vendor/bin/phpstan analyse -l 2 --memory-limit=512M --error-format=raw src/
 
-                                        # 7️⃣ Build frontend
                                         -   name: Build frontend
                                             working-directory: docker
                                             run: |

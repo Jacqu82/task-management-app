@@ -10,34 +10,38 @@
 
                                     steps:
                                         # 1️⃣ Checkout repo
-                                        - name: Checkout repository
-                                          uses: actions/checkout@v4
+                                        -   name: Checkout repository
+                                            uses: actions/checkout@v4
 
                                         # 2️⃣ Start all containers
-                                        - name: Start all containers
-                                          working-directory: docker
-                                          run: docker compose up -d --build
+                                        -   name: Start all containers
+                                            working-directory: docker
+                                            run: docker compose up -d --build
 
                                         # 3️⃣ Wait a few seconds for containers to be ready
-                                        - name: Wait for containers
-                                          run: sleep 10
+                                        -   name: Wait for containers
+                                            run: sleep 10
+
+                                        -   name: Backend init (composer + migrations)
+                                            working-directory: docker
+                                            run: docker compose exec -T php-fpm sh -c "composer install --no-interaction --prefer-dist"
 
                                         # 4️⃣ Run backend tests (PHPUnit) in a fresh container
-                                        - name: Run PHPUnit tests
-                                          working-directory: docker
-                                          run: docker compose run --rm php-fpm sh -c "composer install --no-interaction --prefer-dist && vendor/bin/phpunit"
+                                        -   name: Run PHPUnit
+                                            working-directory: docker
+                                            run: docker compose exec -T php-fpm vendor/bin/phpunit
 
                                         # 5️⃣ Run PHPCS (PSR-12)
-                                        - name: Run PHPCS (PSR-12)
-                                          working-directory: docker
-                                          run: docker compose run --rm php-fpm sh -c "composer install --no-interaction --prefer-dist && vendor/bin/phpcs -n -s -p --standard=PSR12 src/"
+                                        -   name: Run PHPCS (PSR-12)
+                                            working-directory: docker
+                                            run: docker compose exec -T php-fpm vendor/bin/phpcs -n -s -p --standard=PSR12 src/
 
                                         # 6️⃣ Run PHPStan (level 2)
-                                        - name: Run PHPStan (level 2)
-                                          working-directory: docker
-                                          run: docker compose run --rm php-fpm sh -c "composer install --no-interaction --prefer-dist && vendor/bin/phpstan analyse -l 2 --memory-limit=512M --error-format=raw src/"
+                                        -   name: Run PHPStan
+                                            working-directory: docker
+                                            run: docker compose exec -T php-fpm vendor/bin/phpstan analyse -l 2 --memory-limit=512M --error-format=raw src/
 
                                         # 7️⃣ Build frontend
-                                        - name: Build frontend
-                                          working-directory: docker
-                                          run: docker compose run --rm --entrypoint sh node -c "cd /web/frontend && npm ci && npm run build"
+                                        -   name: Build frontend
+                                            working-directory: docker
+                                            run: docker compose run --rm --entrypoint sh node -c "cd /web/frontend && npm ci && npm run build"

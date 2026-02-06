@@ -57,6 +57,4 @@ jobs:
             -   name: Build frontend
                 working-directory: docker
                 run: |
-                    docker compose run --rm \
-                      --entrypoint sh \
-                      node -c "cd /frontend && npm ci --prefer-offline --no-audit && npm run build"
+                    docker compose run --rm node \ npm ci --prefer-offline --no-audit && npm run build

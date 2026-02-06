@@ -59,4 +59,4 @@ jobs:
                 run: |
                     docker compose run --rm \
                       --entrypoint sh \
-                      node -c "cd /web/frontend && npm ci --prefer-offline --no-audit && npm run build"
+                      node -c "cd /frontend && npm ci --prefer-offline --no-audit && npm run build"

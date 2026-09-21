@@ -33,47 +33,42 @@ sudo nano hosts
 git clone git@github.com:Jacqu82/task-management-app.git
 ```
 
+### c) Start projektu
+
+```
+cd docker
+docker compose up -d
+```
+
+### d) Otwórz w przeglądarce
+
+```
+http://task-management.test:8003/
+```
+
 #### Testy PHPunit
 
 ```
+docker exec -it task-management-php bash
 vendor/bin/phpunit
 ```
 
-### e) Instalacja npm oraz uruchomienie aplikacji
-
-#### Otwórz nowy terminal
-
-```
-cd docker
-docker exec -it task-management-node bash
-npm install
-npm run dev
-```
-
 #### Testy playwright
-#### Otwórz nowy terminal
 
 ```
-cd docker
 docker exec -it task-management-node bash
 npx playwright install
 npx playwright install-deps
 npm run test:e2e
 ```
 
-### f) Otwórz w przeglądarce
-
-```
-http://task-management.test:8003/
-```
-
 ## 📂 4. Struktura katalogów
 
 - /.github - Github actions
-- /backend` - Symfony API
+- /backend - Symfony API
 - /docker - Pliki konfiguracji docker-a
-- /frontend` - Next.js (React)
-- /k8s` - Pliki konfiguracji Kubernetes
+- /frontend - Next.js (React)
+- /k8s - Pliki konfiguracji Kubernetes
 
 
 ## ℹ️ 5. Dodatkowe informacje
